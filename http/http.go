@@ -16,7 +16,9 @@
 package http
 
 import (
+	"bytes"
 	"crypto/tls"
+	"encoding/json"
 	"fmt"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
 	"io"
@@ -27,24 +29,59 @@ import (
 
 // NewRequestWithBarrier creates a new request for the given url. The url have is authenticated with a barrier token.
 func NewRequestWithBarrier(url string, token string) (*http.Request, error) {
+	return newRequestWithBarrier(url, nil, "GET", token)
+}
+
+// NewPostRequestWithBarrier creates a new request for the given url. The url have is authenticated with a barrier token.
+func NewPostRequestWithBarrier(url string, body any, token string) (*http.Request, error) {
+	return newRequestWithBarrier(url, body, "POST", token)
+}
+
+func newRequestWithBarrier(url string, body any, method string, token string) (*http.Request, error) {
 
 	// Create a new request
-	request, err := http.NewRequest("GET", url, nil)
-	request.Header.Set("Authorization", "Bearer "+token)
+	request, err := newRequest(url, body, method)
 	if err != nil {
 		log.Error("Http", "Error creating request %s: %v", url, err)
 		return nil, err
 	}
 
+	request.Header.Set("Authorization", "Bearer "+token)
 	return request, nil
 }
 
 // NewRequest creates a new request for the given url. The url have to provide free access without any
-// authentication. For authentication use other functions like NewRequestWithBarrier.
+// authentication. For authentication use other functions like NewGetRequestWithBarrier.
 func NewRequest(url string) (*http.Request, error) {
+	return newRequest(url, nil, "GET")
+}
 
-	// Create a new request
-	request, err := http.NewRequest("GET", url, nil)
+// NewPostRequest creates a new request for the given url and the body as payload. The url have to provide free access without any
+// authentication. For authentication use other functions like NewPostRequestWithBarrier.
+func NewPostRequest(url string, body any) (*http.Request, error) {
+	return newRequest(url, body, "POST")
+}
+
+func newRequest(url string, body any, method string) (*http.Request, error) {
+
+	// Create payload if used
+	var payload []byte = nil
+	if body != nil {
+		var err error
+		payload, err = json.Marshal(body)
+		if err != nil {
+			log.Error("Kafka", "Failed to marshal body: %s", err.Error())
+			return nil, err
+		}
+	}
+
+	// Create a new request with payload if used
+	var buffer *bytes.Buffer = nil
+	if body != nil {
+		buffer = bytes.NewBuffer(payload)
+	}
+
+	request, err := http.NewRequest(method, url, buffer)
 	if err != nil {
 		log.Error("Http", "Error creating request %s: %v", url, err)
 		return nil, err
