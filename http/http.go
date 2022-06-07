@@ -91,11 +91,11 @@ func newRequest(url string, body any, method string) (*http.Request, error) {
 }
 
 // Read returns the payload returned from the request
-func Read(request *http.Request, timeout int, checkCertificate bool) ([]byte, error) {
+func Read(request *http.Request, timeout time.Duration, checkCertificate bool) ([]byte, error) {
 
 	// creates a http client with timeout and tsl security configuration
 	httpClient := http.Client{
-		Timeout: time.Duration(timeout) * time.Second,
+		Timeout: timeout,
 		Transport: &http.Transport{
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: !checkCertificate},
 		},
