@@ -19,14 +19,35 @@ import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
+	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 	"time"
 )
 
-// StartServices helps to start multiple services in parallel and waits until all services are completed. Normally one app has
-// only one service, so this function is parametrized with one service function. In most cases the service or services
-// run infinite, except the app is stopped externally, e.g. during a shut-down of the eliona environment.
-func StartServices(functions ...func()) {
+// Map to check if a function started with RunOnce is currently running.
+var runOnceIds sync.Map
+
+// RunOnce starts a function if this function not currently running. RunOnce knows, with function is currently
+// running (identified by id) and skips starting the function again.
+func RunOnce(function func(), id any) {
+	go func() {
+		_, alreadyRuns := runOnceIds.Load(id)
+		if alreadyRuns {
+			log.Debug("Apps", "Function with id %s is already running. Skip function.", id)
+		} else {
+			runOnceIds.Store(id, nil)
+			function()
+			runOnceIds.Delete(id)
+		}
+	}()
+}
+
+// WaitFor helps to start multiple functions in parallel and waits until all functions are completed. Normally one app has
+// only one main functions that runs in an infinite loop, except the app is stopped externally, e.g. during a shut-down
+// of the eliona environment.
+func WaitFor(functions ...func()) {
 	var waitGroup sync.WaitGroup
 	waitGroup.Add(len(functions))
 	for _, function := range functions {
@@ -39,16 +60,18 @@ func StartServices(functions ...func()) {
 	waitGroup.Wait()
 }
 
-// LoopService wraps the function in an endless loop and calls the function in the defined interval.
-func LoopService(function func(), interval time.Duration) func() {
+// Loop wraps a function in an endless loop and calls the function in the defined interval.
+func Loop(function func(), interval time.Duration) func() {
 	return func() {
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
+		osSignals := make(chan os.Signal, 1)
+		defer close(osSignals)
+		signal.Notify(osSignals, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
 		for {
 			function()
 			select {
 			case <-time.After(interval):
-			case <-ctx.Done():
+			case s := <-osSignals:
+				log.Debug("Apps", "Loop terminated by os signal %s.", s)
 				return
 			}
 		}
