@@ -35,7 +35,7 @@ func RunOnce(function func(), id any) {
 	go func() {
 		_, alreadyRuns := runOnceIds.Load(id)
 		if alreadyRuns {
-			log.Debug("Apps", "Function with id %s is already running. Skip function.", id)
+			log.Debug("Apps", "Function with id %v is already running. Skip function.", id)
 		} else {
 			runOnceIds.Store(id, nil)
 			function()

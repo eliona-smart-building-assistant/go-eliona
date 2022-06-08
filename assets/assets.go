@@ -16,7 +16,6 @@
 package assets
 
 import (
-	"fmt"
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 )
 
@@ -34,27 +33,30 @@ type AssetType struct {
 	Translation      Translation `json:"translation"`
 	DocumentationUrl string      `json:"urldoc"`
 	Icon             string      `json:"icon"`
+	Attributes       []AssetTypeAttribute
 }
 
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(connection db.Connection, assetType AssetType) error {
-	return db.Exec(connection,
+	err := db.Exec(connection,
 		"insert into public.asset_type (asset_type, custom, vendor, translation, urldoc, icon) "+
 			"values ($1, $2, $3, $4, $5, $6) "+
 			"on conflict (asset_type) "+
 			"do update set custom = excluded.custom, vendor = excluded.vendor, translation = excluded.translation, urldoc = excluded.urldoc, icon = excluded.icon",
 		assetType.Id, assetType.Custom, db.EmptyStringIsNull(assetType.Vendor), assetType.Translation, db.EmptyStringIsNull(assetType.DocumentationUrl), db.EmptyStringIsNull(assetType.Icon))
-}
-
-// GetAssetType returns the asset type defined by id or nil if this asset type not exists
-func GetAssetType(connection db.Connection, id string) (AssetType, error) {
-	assetType, _ := db.QuerySingleRow[AssetType](connection, "select asset_type, custom, coalesce(vendor, '') as vendor, translation,  coalesce(urldoc, '') as urldoc, coalesce(icon, '') as icon "+
-		"from public.asset_type "+
-		"where asset_type = $1", id)
-	if assetType.Id != id {
-		return assetType, fmt.Errorf("asset type %s not found", id)
+	if err != nil {
+		return err
 	}
-	return assetType, nil
+	if assetType.Attributes != nil {
+		for _, attribute := range assetType.Attributes {
+			attribute.Id = assetType.Id
+			err = UpsertAssetTypeAttribute(connection, attribute)
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
 }
 
 // AssetTypeAttribute defines an attribute for asset type
