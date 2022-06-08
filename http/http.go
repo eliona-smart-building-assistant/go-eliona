@@ -115,11 +115,16 @@ func Read[T any](request *http.Request, timeout time.Duration, checkCertificate 
 		return value, err
 	}
 
+	if len(payload) == 0 {
+		return value, fmt.Errorf("request returns empty payload")
+	}
+
 	err = json.Unmarshal(payload, &value)
 	if err != nil {
-		log.Error("Http", "Unmarshal error: %v (%v)", err, payload)
+		log.Error("Http", "Unmarshal error: %v (%s)", err, string(payload))
 		return value, err
 	}
+
 	return value, nil
 }
 
