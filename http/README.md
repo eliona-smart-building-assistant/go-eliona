@@ -19,7 +19,8 @@ import "github.com/eliona-smart-building-assistant/go-eliona/http"
 For example, you can make a request and read current weather conditions from this endpoint.  
 
 ```go
-request, _ := http.NewRequest("https://weatherdbi.herokuapp.com/data/weather/winterthur")
-payload, err := http.Read(request, 10, true)
+payload, err := http.Read(http.NewRequest("https://weatherdbi.herokuapp.com/data/weather/winterthur"), 10, true)
+var result map[string]interface{}
+_ = json.Unmarshal(payload, &result)
 fmt.Printf(result["currentConditions"].(map[string]interface{})["comment"].(string))
 ```
