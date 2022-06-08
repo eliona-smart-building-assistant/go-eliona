@@ -108,16 +108,17 @@ func newRequest(url string, method string) (*http.Request, error) {
 
 // Read returns the response data converted to a corresponding structure
 func Read[T any](request *http.Request, timeout time.Duration, checkCertificate bool) (T, error) {
-	response, err := Read(request, timeout, checkCertificate)
+	var value T
+
+	payload, err := Do(request, timeout, checkCertificate)
 	if err != nil {
-		return nil, err
+		return value, err
 	}
 
-	var value T
-	err = json.Unmarshal(response, &value)
+	err = json.Unmarshal(payload, &value)
 	if err != nil {
-		log.Error("Http", "Unmarshal error: %v (%v)", err, response)
-
+		log.Error("Http", "Unmarshal error: %v (%v)", err, payload)
+		return value, err
 	}
 	return value, nil
 }
