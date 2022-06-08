@@ -106,8 +106,24 @@ func newRequest(url string, method string) (*http.Request, error) {
 	return request, nil
 }
 
-// Read returns the payload returned from the request
-func Read(request *http.Request, timeout time.Duration, checkCertificate bool) ([]byte, error) {
+// Read returns the response data converted to a corresponding structure
+func Read[T any](request *http.Request, timeout time.Duration, checkCertificate bool) (T, error) {
+	response, err := Read(request, timeout, checkCertificate)
+	if err != nil {
+		return nil, err
+	}
+
+	var value T
+	err = json.Unmarshal(response, &value)
+	if err != nil {
+		log.Error("Http", "Unmarshal error: %v (%v)", err, response)
+
+	}
+	return value, nil
+}
+
+// Do return the payload returned from the request
+func Do(request *http.Request, timeout time.Duration, checkCertificate bool) ([]byte, error) {
 
 	// creates a http client with timeout and tsl security configuration
 	httpClient := http.Client{
