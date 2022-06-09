@@ -34,7 +34,7 @@ func TestUpsertAssetType(t *testing.T) {
 func TestUpsertAssetTypeAttribute(t *testing.T) {
 	mock := connectionMock()
 	mock.ExpectExec("insert into public.attribute_schema").
-		WithArgs("new_type", "weather", "temperature", StatusSubtype, true, pgxmock.AnyArg(), pgtype.Text{Status: pgtype.Null}, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+		WithArgs("new_type", "weather", "temperature", StatusSubtype, true, pgxmock.AnyArg(), pgtype.Text{Status: pgtype.Null}, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 		WillReturnResult(pgxmock.NewResult("INSERT", 1))
 	err := UpsertAssetTypeAttribute(mock, AssetTypeAttribute{AssetTypeId: "new_type", AttributeType: "weather", Id: "temperature", Subtype: StatusSubtype, Enable: true, Translation: &Translation{German: "Temperatur", English: "Temperature"}})
 	assert.Nil(t, err)

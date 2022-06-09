@@ -83,6 +83,7 @@ type AssetTypeAttribute struct {
 	PipelineMode   *PipelineMode `json:"pipeline_mode,omitempty"`
 	PipelineRaster string        `json:"pipeline_raster,omitempty"`
 	Precision      *int64        `json:"precision,omitempty"`
+	Markers        string        `json:"markers,omitempty"`
 }
 
 // UpsertAssetTypeAttribute insert or, when already exist, updates an attribute for asset type
@@ -98,11 +99,12 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 			"unit,"+
 			"pipeline_mode,"+
 			"pipeline_raster,"+
-			"precision"+
-			") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "+
+			"precision,"+
+			"markers"+
+			") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "+
 			"on conflict (asset_type, subtype, attribute) "+
-			"do update set attribute_type = excluded.attribute_type, enable = excluded.enable, translation = excluded.translation, unit = excluded.unit "+
-			"pipeline_mode = excluded.pipeline_mode, pipeline_raster = excluded.pipeline_raster, precision = excluded.precision",
+			"do update set attribute_type = excluded.attribute_type, enable = excluded.enable, translation = excluded.translation, unit = excluded.unit, "+
+			"pipeline_mode = excluded.pipeline_mode, pipeline_raster = excluded.pipeline_raster, precision = excluded.precision, markers = excluded.markers",
 		attribute.AssetTypeId,
 		attribute.AttributeType,
 		attribute.Id,
@@ -113,6 +115,7 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 		db.EmptyStringIsNull(attribute.PipelineMode),
 		db.EmptyStringIsNull(&attribute.PipelineRaster),
 		db.EmptyIntIsNull(attribute.Precision),
+		db.EmptyStringIsNull(&attribute.Markers),
 	)
 }
 
