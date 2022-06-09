@@ -61,7 +61,7 @@ func UpsertAssetType(connection db.Connection, assetType AssetType) error {
 	}
 	if assetType.Attributes != nil {
 		for _, attribute := range assetType.Attributes {
-			attribute.Id = assetType.Id
+			attribute.AssetTypeId = assetType.Id
 			err = UpsertAssetTypeAttribute(connection, attribute)
 			if err != nil {
 				return err

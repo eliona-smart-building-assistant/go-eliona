@@ -18,6 +18,7 @@ package db
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"github.com/eliona-smart-building-assistant/go-eliona/common"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
 	"github.com/jackc/pgconn"
@@ -195,10 +196,10 @@ func EmptyStringIsNull[T any](string *T) pgtype.Text {
 }
 
 func StringIsNull[T any](s *T, null string) pgtype.Text {
-	if s == nil || any(*s).(string) == null {
+	if s == nil || fmt.Sprintf("%s", *s) == null {
 		return pgtype.Text{Status: pgtype.Null}
 	}
-	return pgtype.Text{String: any(*s).(string), Status: pgtype.Present}
+	return pgtype.Text{String: fmt.Sprintf("%s", *s), Status: pgtype.Present}
 }
 
 func EmptyIntIsNull(int *int64) pgtype.Int8 {
