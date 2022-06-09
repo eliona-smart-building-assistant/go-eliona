@@ -73,16 +73,16 @@ func UpsertAssetType(connection db.Connection, assetType AssetType) error {
 
 // AssetTypeAttribute defines an attribute for asset type
 type AssetTypeAttribute struct {
-	Id             string        `json:"attribute,omitempty"`
-	AssetTypeId    string        `json:"asset_type,omitempty"`
-	Subtype        Subtype       `json:"subtype,omitempty"`
-	AttributeType  string        `json:"attribute_type,omitempty"`
-	Enable         bool          `json:"enable,omitempty"`
-	Translation    *Translation  `json:"translation,omitempty"`
-	Unit           string        `json:"unit,omitempty"`
-	PipelineMode   *PipelineMode `json:"pipeline_mode,omitempty"`
-	PipelineRaster string        `json:"pipeline_raster,omitempty"`
-	Precision      *int64        `json:"precision,omitempty"`
+	Id             string       `json:"attribute,omitempty"`
+	AssetTypeId    string       `json:"asset_type,omitempty"`
+	Subtype        Subtype      `json:"subtype,omitempty"`
+	AttributeType  string       `json:"attribute_type,omitempty"`
+	Enable         bool         `json:"enable,omitempty"`
+	Translation    *Translation `json:"translation,omitempty"`
+	Unit           string       `json:"unit,omitempty"`
+	PipelineMode   PipelineMode `json:"pipeline_mode,omitempty"`
+	PipelineRaster string       `json:"pipeline_raster,omitempty"`
+	Precision      *int64       `json:"precision,omitempty"`
 }
 
 // UpsertAssetTypeAttribute insert or, when already exist, updates an attribute for asset type
@@ -110,7 +110,7 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 		attribute.Enable,
 		db.EmptyJsonIsNull(attribute.Translation),
 		db.EmptyStringIsNull(&attribute.Unit),
-		db.EmptyStringIsNull(attribute.PipelineMode),
+		db.EmptyStringIsNull(&attribute.PipelineMode),
 		db.EmptyStringIsNull(&attribute.PipelineRaster),
 		db.EmptyIntIsNull(attribute.Precision),
 	)
@@ -162,8 +162,11 @@ func UpsertAsset(connection db.Connection, asset Asset) (int, error) {
 type PipelineMode string
 
 const (
+	// NoPipelineMode defines, that no pipeline mode ist used
+	NoPipelineMode PipelineMode = ""
+
 	// SumPipelineMode is the sum pipeline mode
-	SumPipelineMode PipelineMode = "sum"
+	SumPipelineMode = "sum"
 
 	// AveragePipelineMode is the a pipeline mode
 	AveragePipelineMode = "avg"
