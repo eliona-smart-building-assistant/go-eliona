@@ -99,7 +99,7 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 			"pipeline_mode,"+
 			"pipeline_raster,"+
 			"precision"+
-			") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) "+
+			") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) "+
 			"on conflict (asset_type, subtype, attribute) "+
 			"do update set attribute_type = excluded.attribute_type, enable = excluded.enable, translation = excluded.translation, unit = excluded.unit, "+
 			"pipeline_mode = excluded.pipeline_mode, pipeline_raster = excluded.pipeline_raster, precision = excluded.precision",
