@@ -32,3 +32,8 @@ func Getenv(key, fallback string) string {
 func AppName() string {
 	return Getenv("APPNAME", "")
 }
+
+// Ptr delivers the pointer of any constant value like Ptr("foo")
+func Ptr[T any](v T) *T {
+	return &v
+}

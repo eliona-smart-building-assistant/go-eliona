@@ -17,11 +17,11 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"encoding/json"
 	"github.com/eliona-smart-building-assistant/go-eliona/common"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
 	"github.com/jackc/pgconn"
+	"github.com/jackc/pgtype"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"io/ioutil"
@@ -171,19 +171,45 @@ func Exec(connection Connection, sql string, args ...interface{}) error {
 	return err
 }
 
-// EmptyStringIsNull returns a null string if the string is empty (string == "")
-func EmptyStringIsNull(string string) sql.NullString {
-	if len(string) == 0 {
-		return sql.NullString{}
+func EmptyJsonIsNull[T any](any *T) pgtype.JSON {
+	if any == nil {
+		return pgtype.JSON{Status: pgtype.Null}
 	}
-	return sql.NullString{String: string, Valid: true}
+	bytes, _ := json.Marshal(*any)
+	return pgtype.JSON{Bytes: bytes, Status: pgtype.Present}
 }
 
-func EmptyFloatIsNull(float float64) sql.NullFloat64 {
-	if float == 0 {
-		return sql.NullFloat64{}
+func EmptyFloatIsNull(float *float64) pgtype.Float8 {
+	return FloatIsNull(float, 0)
+}
+
+func FloatIsNull(float *float64, null float64) pgtype.Float8 {
+	if float == nil || *float == null {
+		return pgtype.Float8{Status: pgtype.Null}
 	}
-	return sql.NullFloat64{Float64: float, Valid: true}
+	return pgtype.Float8{Float: *float, Status: pgtype.Present}
+}
+
+func EmptyStringIsNull[T any](string *T) pgtype.Text {
+	return StringIsNull(string, "")
+}
+
+func StringIsNull[T any](s *T, null string) pgtype.Text {
+	if s == nil || any(*s).(string) == null {
+		return pgtype.Text{Status: pgtype.Null}
+	}
+	return pgtype.Text{String: any(*s).(string), Status: pgtype.Present}
+}
+
+func EmptyIntIsNull(int *int64) pgtype.Int8 {
+	return IntIsNull(int, 0)
+}
+
+func IntIsNull(int *int64, null int64) pgtype.Int8 {
+	if int == nil || *int == null {
+		return pgtype.Int8{Status: pgtype.Null}
+	}
+	return pgtype.Int8{Int: *int, Status: pgtype.Present}
 }
 
 // Begin returns a new transaction
@@ -239,7 +265,14 @@ func interfaces(holder interface{}) []interface{} {
 	if value.Kind() == reflect.Struct {
 		values := make([]interface{}, value.NumField())
 		for i := 0; i < value.NumField(); i++ {
-			values[i] = value.Field(i).Addr().Interface()
+			if value.Field(i).Kind() == reflect.Pointer {
+				if value.Field(i).IsNil() {
+					value.Field(i).Set(reflect.New(value.Field(i).Type().Elem()))
+				}
+				values[i] = value.Field(i).Interface()
+			} else {
+				values[i] = value.Field(i).Addr().Interface()
+			}
 		}
 		return values
 	} else {

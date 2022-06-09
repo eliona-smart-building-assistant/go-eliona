@@ -28,6 +28,24 @@ type Temperature struct {
 	Unit  string
 }
 
+type Weather struct {
+	Temperature *Temperature
+	Remark      *string
+	DayOfWeek   *int
+}
+
+func TestPointer(t *testing.T) {
+	mock := connectionMock()
+	rows := mock.NewRows([]string{"temperature", "remark", "day_of_week"}).
+		AddRow(nil, "Cloudy", 4)
+	mock.ExpectQuery("select (.+) from weather").WillReturnRows(rows)
+	weather, err := QuerySingleRow[Weather](mock, "select value, unit from weather")
+	assert.Nil(t, err)
+	assert.Equal(t, "", weather.Temperature.Unit)
+	assert.Equal(t, "Cloudy", *weather.Remark)
+	assert.Equal(t, 4, *weather.DayOfWeek)
+}
+
 func TestQuery(t *testing.T) {
 	mock := connectionMock()
 	rows := mock.NewRows([]string{"value", "unit"}).
