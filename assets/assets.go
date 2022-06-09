@@ -159,11 +159,11 @@ func UpsertAsset(connection db.Connection, asset Asset) (int, error) {
 }
 
 // PipelineMode defines the type of pipeline
-type PipelineMode int
+type PipelineMode string
 
 const (
 	// SumPipelineMode is the sum pipeline mode
-	SumPipelineMode Subtype = "sum"
+	SumPipelineMode PipelineMode = "sum"
 
 	// AveragePipelineMode is the a pipeline mode
 	AveragePipelineMode = "avg"
