@@ -17,6 +17,7 @@ package assets
 
 import (
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
+	"math"
 )
 
 // Translation defines a translation used inside assets
@@ -82,7 +83,7 @@ type AssetTypeAttribute struct {
 	Unit           string       `json:"unit,omitempty"`
 	PipelineMode   PipelineMode `json:"pipeline_mode,omitempty"`
 	PipelineRaster string       `json:"pipeline_raster,omitempty"`
-	Precision      *int64       `json:"precision,omitempty"`
+	Precision      *int16       `json:"precision,omitempty"`
 }
 
 // UpsertAssetTypeAttribute insert or, when already exist, updates an attribute for asset type
@@ -112,7 +113,7 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 		db.EmptyStringIsNull(&attribute.Unit),
 		db.EmptyStringIsNull(&attribute.PipelineMode),
 		db.EmptyStringIsNull(&attribute.PipelineRaster),
-		db.EmptyIntIsNull(attribute.Precision),
+		db.SmallIntIsNull(attribute.Precision, math.MinInt16),
 	)
 }
 

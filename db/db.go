@@ -213,6 +213,17 @@ func IntIsNull(int *int64, null int64) pgtype.Int8 {
 	return pgtype.Int8{Int: *int, Status: pgtype.Present}
 }
 
+func EmptySmallIntIsNull(int *int16) pgtype.Int2 {
+	return SmallIntIsNull(int, 0)
+}
+
+func SmallIntIsNull(int *int16, null int16) pgtype.Int2 {
+	if int == nil || *int == null {
+		return pgtype.Int2{Status: pgtype.Null}
+	}
+	return pgtype.Int2{Int: *int, Status: pgtype.Present}
+}
+
 // Begin returns a new transaction
 func Begin(connection Connection) (pgx.Tx, error) {
 	transaction, err := connection.Begin(context.Background())
