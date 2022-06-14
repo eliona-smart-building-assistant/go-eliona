@@ -129,6 +129,16 @@ type Asset struct {
 	Tags                  []string `json:"tags"`
 }
 
+// ExistAsset returns true, if the given asset id exists in eliona
+func ExistAsset(connection db.Connection, assetId int) (bool, error) {
+	count, err := db.QuerySingleRow[int](connection,
+		"select count(*) from public.asset where asset_id = $1", assetId)
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
+
 // UpsertAsset insert or updates an assets and returns the id
 func UpsertAsset(connection db.Connection, asset Asset) (int, error) {
 	assetId, err := db.QuerySingleRow[int](connection,

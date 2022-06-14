@@ -51,6 +51,18 @@ func UpsertHeap[T any](connection db.Connection, heap Heap[T]) error {
 		heap.AssetId, string(heap.Subtype), heap.TimeStamp, payload)
 }
 
+// UpsertHeapIfAssetExists upsert the heap if the asset id exists. Otherwise, the upsert is ignored
+func UpsertHeapIfAssetExists[T any](connection db.Connection, heap Heap[T]) error {
+	exists, err := ExistAsset(connection, heap.AssetId)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return UpsertHeap(connection, heap)
+	}
+	return nil
+}
+
 // ListenHeap listens on the channel heap and collect updated or inserted heaps
 func ListenHeap[T any](connection *pgx.Conn, outputs chan Heap[T]) {
 	db.Listen(connection, "heap", outputs)
