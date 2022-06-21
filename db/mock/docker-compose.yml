@@ -1,0 +1,33 @@
+#  This file is part of the eliona project.
+#  Copyright © 2022 LEICOM iTEC AG. All Rights Reserved.
+#  ______ _ _
+# |  ____| (_)
+# | |__  | |_  ___  _ __   __ _
+# |  __| | | |/ _ \| '_ \ / _` |
+# | |____| | | (_) | | | | (_| |
+# |______|_|_|\___/|_| |_|\__,_|
+#
+#  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+#  BUT NOT LIMITED  TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+#  NON INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+#  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+#  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+# Use this docker-compose.yml file to start a PostgreSQL database for mocking an Eliona environment.
+# The database can be connected with: CONNECTION_STRING=postgres://postgres:postgres@localhost:5432/postgres
+# To use this database for mocking some objects have to be created. To do this, run the init-mock-database.sql script.
+
+version: "3.7"
+
+services:
+
+  database:
+    container_name: postgres-mock-database
+    image: debezium/postgres:12
+    environment:
+      POSTGRES_PASSWORD: postgres
+      PGPORT: 5432
+      TZ: Europe/Zurich
+    restart: always
+    ports:
+      - "5432:5432"
