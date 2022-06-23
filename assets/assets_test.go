@@ -27,7 +27,7 @@ func TestUpsertAssetType(t *testing.T) {
 	mock.ExpectExec("insert into public.asset_type").
 		WithArgs("new_type", true, pgtype.Text{String: "ITEC AG", Status: pgtype.Present}, pgxmock.AnyArg(), pgtype.Text{Status: pgtype.Null}, pgtype.Text{Status: pgtype.Null}).
 		WillReturnResult(pgxmock.NewResult("INSERT", 1))
-	err := UpsertAssetType(mock, AssetType{Id: "new_type", Custom: true, Vendor: "ITEC AG", Translation: &Translation{German: "Neuer Typ", English: "New type"}})
+	err := UpsertAssetType(mock, AssetType{Name: "new_type", Custom: true, Vendor: "ITEC AG", Translation: &Translation{German: "Neuer Typ", English: "New type"}})
 	assert.Nil(t, err)
 }
 
@@ -36,7 +36,7 @@ func TestUpsertAssetTypeAttribute(t *testing.T) {
 	mock.ExpectExec("insert into public.attribute_schema").
 		WithArgs("new_type", "weather", "temperature", StatusSubtype, true, pgxmock.AnyArg(), pgtype.Text{Status: pgtype.Null}, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 		WillReturnResult(pgxmock.NewResult("INSERT", 1))
-	err := UpsertAssetTypeAttribute(mock, AssetTypeAttribute{AssetTypeId: "new_type", AttributeType: "weather", Id: "temperature", Subtype: StatusSubtype, Enable: true, Translation: &Translation{German: "Temperatur", English: "Temperature"}})
+	err := UpsertAssetTypeAttribute(mock, AssetTypeAttribute{AssetTypeId: "new_type", AttributeType: "weather", Name: "temperature", Subtype: StatusSubtype, Enable: true, Translation: &Translation{German: "Temperatur", English: "Temperature"}})
 	assert.Nil(t, err)
 }
 

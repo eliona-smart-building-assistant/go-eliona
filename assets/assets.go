@@ -26,9 +26,14 @@ type Translation struct {
 	English string `json:"en,omitempty"`
 }
 
+type Pipeline struct {
+	Mode   PipelineMode `json:"mode,omitempty"`
+	Raster string       `json:"raster,omitempty"`
+}
+
 // AssetType defines an asset type
 type AssetType struct {
-	Id               string               `json:"asset_type,omitempty"`
+	Name             string               `json:"name,omitempty"`
 	Custom           bool                 `json:"custom,omitempty"`
 	Vendor           string               `json:"vendor,omitempty"`
 	Translation      *Translation         `json:"translation,omitempty"`
@@ -50,7 +55,7 @@ func UpsertAssetType(connection db.Connection, assetType AssetType) error {
 			") values ($1, $2, $3, $4, $5, $6) "+
 			"on conflict (asset_type) "+
 			"do update set custom = excluded.custom, vendor = excluded.vendor, translation = excluded.translation, urldoc = excluded.urldoc, icon = excluded.icon",
-		assetType.Id,
+		assetType.Name,
 		assetType.Custom,
 		db.EmptyStringIsNull(&assetType.Vendor),
 		db.EmptyJsonIsNull(assetType.Translation),
@@ -62,7 +67,7 @@ func UpsertAssetType(connection db.Connection, assetType AssetType) error {
 	}
 	if assetType.Attributes != nil {
 		for _, attribute := range assetType.Attributes {
-			attribute.AssetTypeId = assetType.Id
+			attribute.AssetTypeId = assetType.Name
 			err = UpsertAssetTypeAttribute(connection, attribute)
 			if err != nil {
 				return err
@@ -74,16 +79,15 @@ func UpsertAssetType(connection db.Connection, assetType AssetType) error {
 
 // AssetTypeAttribute defines an attribute for asset type
 type AssetTypeAttribute struct {
-	Id             string       `json:"attribute,omitempty"`
-	AssetTypeId    string       `json:"asset_type,omitempty"`
-	Subtype        Subtype      `json:"subtype,omitempty"`
-	AttributeType  string       `json:"attribute_type,omitempty"`
-	Enable         bool         `json:"enable,omitempty"`
-	Translation    *Translation `json:"translation,omitempty"`
-	Unit           string       `json:"unit,omitempty"`
-	PipelineMode   PipelineMode `json:"pipeline_mode,omitempty"`
-	PipelineRaster string       `json:"pipeline_raster,omitempty"`
-	Precision      *int16       `json:"precision,omitempty"`
+	AssetTypeId   string       `json:"assetType,omitempty"`
+	AttributeType string       `json:"type,omitempty"`
+	Name          string       `json:"name,omitempty"`
+	Subtype       Subtype      `json:"subtype,omitempty"`
+	Enable        bool         `json:"enable,omitempty"`
+	Translation   *Translation `json:"translation,omitempty"`
+	Unit          string       `json:"unit,omitempty"`
+	Pipeline      Pipeline     `json:"pipeline,omitempty"`
+	Precision     *int16       `json:"precision,omitempty"`
 }
 
 // UpsertAssetTypeAttribute insert or, when already exist, updates an attribute for asset type
@@ -106,20 +110,20 @@ func UpsertAssetTypeAttribute(connection db.Connection, attribute AssetTypeAttri
 			"pipeline_mode = excluded.pipeline_mode, pipeline_raster = excluded.pipeline_raster, precision = excluded.precision",
 		attribute.AssetTypeId,
 		attribute.AttributeType,
-		attribute.Id,
+		attribute.Name,
 		string(attribute.Subtype),
 		attribute.Enable,
 		db.EmptyJsonIsNull(attribute.Translation),
 		db.EmptyStringIsNull(&attribute.Unit),
-		db.EmptyStringIsNull(&attribute.PipelineMode),
-		db.EmptyStringIsNull(&attribute.PipelineRaster),
+		db.EmptyStringIsNull(&attribute.Pipeline.Mode),
+		db.EmptyStringIsNull(&attribute.Pipeline.Raster),
 		db.SmallIntIsNull(attribute.Precision, math.MinInt16),
 	)
 }
 
 // Asset defines an asset
 type Asset struct {
-	ProjectId             string   `json:"proj_id"`
+	ProjectId             string   `json:"projectId"`
 	GlobalAssetIdentifier string   `json:"gai"`
 	Name                  string   `json:"name"`
 	AssetTypeId           string   `json:"asset_type"`

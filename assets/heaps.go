@@ -27,7 +27,7 @@ import (
 type Heap[T any] struct {
 	AssetId   int       `json:"asset_id"`
 	Subtype   Subtype   `json:"subtype"`
-	TimeStamp time.Time `json:"ts"`
+	TimeStamp time.Time `json:"timestamp"`
 	Data      T         `json:"data"`
 }
 
