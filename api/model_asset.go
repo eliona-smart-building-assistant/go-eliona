@@ -14,25 +14,25 @@ import (
 	"encoding/json"
 )
 
-// Asset An eliona
+// Asset An asset
 type Asset struct {
-	// The internal Id of eliona
+	// The internal Id of asset
 	Id *int32 `json:"Id,omitempty"`
-	// ID of the project to which the eliona belongs
+	// ID of the project to which the asset belongs
 	ProjectId string `json:"projectId"`
-	// Unique identifier for the eliona
+	// Unique identifier for the asset
 	GlobalAssetIdentifier string `json:"globalAssetIdentifier"`
-	// Alternate text for the eliona to display in frontend
+	// Alternate text for the asset to display in frontend
 	Name *string `json:"name,omitempty"`
-	// Reference to eliona type by name
+	// Reference to asset type by name
 	AssetType string `json:"assetType"`
-	// Latitude coordinate (GPS) of the eliona
+	// Latitude coordinate (GPS) of the asset
 	Latitude *float64 `json:"latitude,omitempty"`
-	// Longitude coordinate (GPS) of the eliona
+	// Longitude coordinate (GPS) of the asset
 	Longitude *float64 `json:"longitude,omitempty"`
-	// Textual description for this eliona
+	// Textual description for this asset
 	Description *string `json:"description,omitempty"`
-	// List of tags associated with eliona
+	// List of tags associated with asset
 	Tags []string `json:"tags,omitempty"`
 }
 

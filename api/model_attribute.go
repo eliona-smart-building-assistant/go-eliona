@@ -16,7 +16,9 @@ import (
 
 // Attribute Named attribute to store data of assets
 type Attribute struct {
-	// Unique key of eliona heap data
+	// The unique name for the asset type
+	AssetTypeName *string `json:"assetTypeName,omitempty"`
+	// Unique key of asset heap data
 	Name    string      `json:"name"`
 	Subtype HeapSubtype `json:"subtype"`
 	// Name of the type for this attribute
@@ -74,6 +76,38 @@ func NewAttributeWithDefaults() *Attribute {
 	var ar bool = false
 	this.Ar = &ar
 	return &this
+}
+
+// GetAssetTypeName returns the AssetTypeName field value if set, zero value otherwise.
+func (o *Attribute) GetAssetTypeName() string {
+	if o == nil || o.AssetTypeName == nil {
+		var ret string
+		return ret
+	}
+	return *o.AssetTypeName
+}
+
+// GetAssetTypeNameOk returns a tuple with the AssetTypeName field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *Attribute) GetAssetTypeNameOk() (*string, bool) {
+	if o == nil || o.AssetTypeName == nil {
+		return nil, false
+	}
+	return o.AssetTypeName, true
+}
+
+// HasAssetTypeName returns a boolean if a field has been set.
+func (o *Attribute) HasAssetTypeName() bool {
+	if o != nil && o.AssetTypeName != nil {
+		return true
+	}
+
+	return false
+}
+
+// SetAssetTypeName gets a reference to the given string and assigns it to the AssetTypeName field.
+func (o *Attribute) SetAssetTypeName(v string) {
+	o.AssetTypeName = &v
 }
 
 // GetName returns the Name field value
@@ -510,6 +544,9 @@ func (o *Attribute) SetVirtual(v bool) {
 
 func (o Attribute) MarshalJSON() ([]byte, error) {
 	toSerialize := map[string]interface{}{}
+	if o.AssetTypeName != nil {
+		toSerialize["assetTypeName"] = o.AssetTypeName
+	}
 	if true {
 		toSerialize["name"] = o.Name
 	}

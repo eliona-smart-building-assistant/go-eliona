@@ -45,9 +45,9 @@ func (r ApiGetAssetTypesRequest) Execute() ([]AssetType, *http.Response, error) 
 }
 
 /*
-GetAssetTypes List of eliona types
+GetAssetTypes List of asset types
 
-Returns a list of eliona types
+Returns a list of asset types
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return ApiGetAssetTypesRequest
@@ -74,7 +74,7 @@ func (a *AssetTypeApiService) GetAssetTypesExecute(r ApiGetAssetTypesRequest) ([
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/eliona-type"
+	localVarPath := localBasePath + "/asset-type"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -156,9 +156,9 @@ func (r ApiPostAssetTypeRequest) Execute() (*http.Response, error) {
 }
 
 /*
-PostAssetType Create or update an eliona type
+PostAssetType Create or update an asset type
 
-Create a new eliona type or update an eliona type if already exists
+Create a new asset type or update an asset type if already exists
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return ApiPostAssetTypeRequest
@@ -183,7 +183,7 @@ func (a *AssetTypeApiService) PostAssetTypeExecute(r ApiPostAssetTypeRequest) (*
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/eliona-type"
+	localVarPath := localBasePath + "/asset-type"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -211,6 +211,105 @@ func (a *AssetTypeApiService) PostAssetTypeExecute(r ApiPostAssetTypeRequest) (*
 	}
 	// body params
 	localVarPostBody = r.assetType
+	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
+	if err != nil {
+		return nil, err
+	}
+
+	localVarHTTPResponse, err := a.client.callAPI(req)
+	if err != nil || localVarHTTPResponse == nil {
+		return localVarHTTPResponse, err
+	}
+
+	localVarBody, err := ioutil.ReadAll(localVarHTTPResponse.Body)
+	localVarHTTPResponse.Body.Close()
+	localVarHTTPResponse.Body = ioutil.NopCloser(bytes.NewBuffer(localVarBody))
+	if err != nil {
+		return localVarHTTPResponse, err
+	}
+
+	if localVarHTTPResponse.StatusCode >= 300 {
+		newErr := &GenericOpenAPIError{
+			body:  localVarBody,
+			error: localVarHTTPResponse.Status,
+		}
+		return localVarHTTPResponse, newErr
+	}
+
+	return localVarHTTPResponse, nil
+}
+
+type ApiPostAssetTypeAttributeRequest struct {
+	ctx        context.Context
+	ApiService *AssetTypeApiService
+	attribute  *Attribute
+}
+
+func (r ApiPostAssetTypeAttributeRequest) Attribute(attribute Attribute) ApiPostAssetTypeAttributeRequest {
+	r.attribute = &attribute
+	return r
+}
+
+func (r ApiPostAssetTypeAttributeRequest) Execute() (*http.Response, error) {
+	return r.ApiService.PostAssetTypeAttributeExecute(r)
+}
+
+/*
+PostAssetTypeAttribute Create or update an asset type attribute
+
+Create a new asset type attribute or update an asset type attribute if already exists
+
+ @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+ @return ApiPostAssetTypeAttributeRequest
+*/
+func (a *AssetTypeApiService) PostAssetTypeAttribute(ctx context.Context) ApiPostAssetTypeAttributeRequest {
+	return ApiPostAssetTypeAttributeRequest{
+		ApiService: a,
+		ctx:        ctx,
+	}
+}
+
+// Execute executes the request
+func (a *AssetTypeApiService) PostAssetTypeAttributeExecute(r ApiPostAssetTypeAttributeRequest) (*http.Response, error) {
+	var (
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
+	)
+
+	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AssetTypeApiService.PostAssetTypeAttribute")
+	if err != nil {
+		return nil, &GenericOpenAPIError{error: err.Error()}
+	}
+
+	localVarPath := localBasePath + "/asset-type-attribute"
+
+	localVarHeaderParams := make(map[string]string)
+	localVarQueryParams := url.Values{}
+	localVarFormParams := url.Values{}
+	if r.attribute == nil {
+		return nil, reportError("attribute is required and must be specified")
+	}
+
+	// to determine the Content-Type header
+	localVarHTTPContentTypes := []string{"application/json"}
+
+	// set Content-Type header
+	localVarHTTPContentType := selectHeaderContentType(localVarHTTPContentTypes)
+	if localVarHTTPContentType != "" {
+		localVarHeaderParams["Content-Type"] = localVarHTTPContentType
+	}
+
+	// to determine the Accept header
+	localVarHTTPHeaderAccepts := []string{}
+
+	// set Accept header
+	localVarHTTPHeaderAccept := selectHeaderAccept(localVarHTTPHeaderAccepts)
+	if localVarHTTPHeaderAccept != "" {
+		localVarHeaderParams["Accept"] = localVarHTTPHeaderAccept
+	}
+	// body params
+	localVarPostBody = r.attribute
 	req, err := a.client.prepareRequest(r.ctx, localVarPath, localVarHTTPMethod, localVarPostBody, localVarHeaderParams, localVarQueryParams, localVarFormParams, formFiles)
 	if err != nil {
 		return nil, err

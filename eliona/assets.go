@@ -34,6 +34,12 @@ func ExistAsset(assetId int32) (bool, error) {
 
 // UpsertAsset insert or updates an assets and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
-	asset, _, err := api.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
-	return asset.Id, err
+	upsertedAsset, _, err := api.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
+	return upsertedAsset.Id, err
+}
+
+// UpsertAssetTypeAttribute insert or updates an assets and returns the id
+func UpsertAssetTypeAttribute(attribute api.Attribute) error {
+	_, err := api.NewClient().AssetTypeApi.PostAssetTypeAttribute(context.Background()).Attribute(attribute).Execute()
+	return err
 }
