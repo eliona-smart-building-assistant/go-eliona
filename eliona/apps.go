@@ -13,10 +13,11 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package apps
+package eliona
 
 import (
 	"context"
+	"github.com/eliona-smart-building-assistant/go-eliona/api"
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
 )
@@ -29,12 +30,12 @@ func ExecSqlFile(path string) func(connection db.Connection) error {
 	}
 }
 
-// The Init function must be used to run all the elements required for the app initialization process.
+// The InitApp function must be used to run all the elements required for the app initialization process.
 // This function guarantees that everything will only run once when the app is first launched.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Init(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
-	if appInitialized(connection, appName) {
+func InitApp(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
+	if appRegistered(appName) {
 		log.Debug("Apps", "App %s is already initialized. Skip init.", appName)
 		return
 	}
@@ -51,41 +52,39 @@ func Init(connection db.Connection, appName string, initFunctions ...func(connec
 		}
 	}
 
-	err = registerApp(transaction, appName)
-	if err != nil {
-		log.Fatal("Apps", "Cannot register app %s as initialized.", appName)
-	}
-
 	err = transaction.Commit(context.Background())
 	if err != nil {
 		log.Fatal("Apps", "Cannot commit init for app %s.", appName)
 	}
+
+	err = registerApp(appName)
+	if err != nil {
+		log.Fatal("Apps", "Cannot register app %s as initialized.", appName)
+	}
+
 }
 
-// appInitialized checks if the app is already initialized.
-func appInitialized(connection db.Connection, appName string) bool {
-	count, _ := db.QuerySingleRow[int](connection, "select count(*) from public.eliona_app where app_name = $1 and initialised", appName)
-	return 0 < count
+// appRegistered checks if the app is already initialized.
+func appRegistered(appName string) bool {
+	app, _, err := api.NewClient().AppApi.GetAppByName(context.Background(), appName).Execute()
+	if err != nil || app.Registered == nil {
+		return false
+	}
+	return *app.Registered
 }
 
 // registerApp marks that the app is now initialized and installed.
-func registerApp(connection db.Connection, appName string) error {
-	err := db.Exec(connection, "insert into public.eliona_app (app_name, category, active, initialised) values"+
-		" ($1, 'app', true, true) "+
-		" on conflict (app_name) do update set initialised = true", appName)
-	if err != nil {
-		log.Error("Apps", "Cannot register app %s.", appName)
-		return err
-	}
-	return nil
+func registerApp(appName string) error {
+	_, err := api.NewClient().AppApi.RegisterAppByName(context.Background(), appName).Execute()
+	return err
 }
 
-// The Patch function must be used to run all the elements required for the patch process.
+// The PatchApp function must be used to run all the elements required for the patch process.
 // This function guarantees that everything will only run once when the patch is applied.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Patch(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
-	if patchRegistered(connection, appName, patchName) {
+func PatchApp(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
+	if patchApplied(appName, patchName) {
 		log.Debug("Apps", "App %s patch %s is already installed. Skip patching.", appName, patchName)
 		return
 	}
@@ -102,31 +101,28 @@ func Patch(connection db.Connection, appName string, patchName string, patchFunc
 		}
 	}
 
-	err = registerPatch(transaction, appName, patchName)
-	if err != nil {
-		log.Fatal("Apps", "Cannot register patch %s for app %s.", patchName, appName)
-	}
-
 	err = transaction.Commit(context.Background())
 	if err != nil {
 		log.Fatal("Apps", "Cannot commit patch %s for app %s.", patchName, appName)
 	}
-}
 
-// patchRegistered checks if the patch is already applied.
-func patchRegistered(connection db.Connection, appName string, patchName string) bool {
-	count, _ := db.QuerySingleRow[int](connection, "select count(*) from versioning.patches where app_name = $1 and patch_name = $2", appName, patchName)
-	return 0 < count
-}
-
-// registerPatch marks that the patch is now applied.
-func registerPatch(connection db.Connection, appName string, patchName string) error {
-	err := db.Exec(connection, "insert into versioning.patches "+
-		"(patch_name, app_name, applied_tsz, applied_by) values "+
-		"($1, $2, now(), current_user)", patchName, appName)
+	err = applyPatch(appName, patchName)
 	if err != nil {
-		log.Error("Apps", "Cannot register patch %s for app %s.", patchName, appName)
-		return err
+		log.Fatal("Apps", "Cannot register patch %s for app %s.", patchName, appName)
 	}
-	return nil
+}
+
+// patchApplied checks if the patch is already applied.
+func patchApplied(appName string, patchName string) bool {
+	patch, _, err := api.NewClient().AppApi.GetPatchByName(context.Background(), appName, patchName).Execute()
+	if err != nil || patch.Applied == nil {
+		return false
+	}
+	return *patch.Applied
+}
+
+// applyPatch marks that the patch is now applied.
+func applyPatch(appName string, patchName string) error {
+	_, err := api.NewClient().AppApi.ApplyPatchByName(context.Background(), appName, patchName).Execute()
+	return err
 }

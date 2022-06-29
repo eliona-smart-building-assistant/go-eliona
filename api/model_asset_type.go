@@ -16,7 +16,7 @@ import (
 
 // AssetType A type of assets
 type AssetType struct {
-	// The unique name for this asset type
+	// The unique name for this eliona type
 	Name string `json:"name"`
 	// Is this a customer created type or not
 	Custom bool `json:"custom"`

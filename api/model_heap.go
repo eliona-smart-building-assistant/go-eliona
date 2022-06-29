@@ -17,7 +17,7 @@ import (
 
 // Heap Heap data
 type Heap struct {
-	// ID of the corresponding asset
+	// ID of the corresponding eliona
 	AssetId int32       `json:"assetId"`
 	Subtype HeapSubtype `json:"subtype"`
 	// Timestamp of the latest data change

@@ -16,7 +16,7 @@ import (
 
 // Attribute Named attribute to store data of assets
 type Attribute struct {
-	// Unique key of asset heap data
+	// Unique key of eliona heap data
 	Name    string      `json:"name"`
 	Subtype HeapSubtype `json:"subtype"`
 	// Name of the type for this attribute

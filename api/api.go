@@ -13,4 +13,18 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package apps
+package api
+
+import (
+	"github.com/eliona-smart-building-assistant/go-eliona/common"
+)
+
+func ConnectionString() string {
+	return common.Getenv("API_ENDPOINT", "http://eliona-api:8080/v2")
+}
+
+func NewClient() *APIClient {
+	cfg := NewConfiguration()
+	cfg.Servers = ServerConfigurations{{URL: ConnectionString()}}
+	return NewAPIClient(cfg)
+}

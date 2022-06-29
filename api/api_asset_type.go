@@ -45,9 +45,9 @@ func (r ApiGetAssetTypesRequest) Execute() ([]AssetType, *http.Response, error) 
 }
 
 /*
-GetAssetTypes List of asset types
+GetAssetTypes List of eliona types
 
-Returns a list of asset types
+Returns a list of eliona types
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return ApiGetAssetTypesRequest
@@ -74,7 +74,7 @@ func (a *AssetTypeApiService) GetAssetTypesExecute(r ApiGetAssetTypesRequest) ([
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/asset-type"
+	localVarPath := localBasePath + "/eliona-type"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -156,9 +156,9 @@ func (r ApiPostAssetTypeRequest) Execute() (*http.Response, error) {
 }
 
 /*
-PostAssetType Create or update an asset type
+PostAssetType Create or update an eliona type
 
-Create a new asset type or update an asset type if already exists
+Create a new eliona type or update an eliona type if already exists
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return ApiPostAssetTypeRequest
@@ -183,7 +183,7 @@ func (a *AssetTypeApiService) PostAssetTypeExecute(r ApiPostAssetTypeRequest) (*
 		return nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/asset-type"
+	localVarPath := localBasePath + "/eliona-type"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}

@@ -27,4 +27,4 @@ and run `go get` without parameters.
 - [Database](db) to access databases
 - [Http](http) to handle web requests
 - [Kafka](kafka) to handle kafka topics
-- [API](api) to access API (generated, see [instruction for generation](api/README.md))
+- [Api](api) to access the [Eliona Api](https://github.com/eliona-smart-building-assistant/eliona-api) (generated)

@@ -13,4 +13,28 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package apps
+package eliona
+
+import (
+	"context"
+	"github.com/eliona-smart-building-assistant/go-eliona/api"
+)
+
+// UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
+// Otherwise, the timestamp and the data are updated.
+func UpsertHeap(heap api.Heap) error {
+	_, err := api.NewClient().HeapApi.PostHeap(context.Background()).Heap(heap).Execute()
+	return err
+}
+
+// UpsertHeapIfAssetExists upsert the heap if the eliona id exists. Otherwise, the upsert is ignored
+func UpsertHeapIfAssetExists[T any](heap api.Heap) error {
+	exists, err := ExistAsset(heap.AssetId)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return UpsertHeap(heap)
+	}
+	return nil
+}

@@ -35,10 +35,10 @@ func (r ApiGetAssetByIdRequest) Execute() (*Asset, *http.Response, error) {
 /*
 GetAssetById Information about an Asset
 
-Gets information about an asset.
+Gets information about an eliona.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param assetId The id of the asset
+ @param assetId The id of the eliona
  @return ApiGetAssetByIdRequest
 */
 func (a *AssetApiService) GetAssetById(ctx context.Context, assetId int32) ApiGetAssetByIdRequest {
@@ -64,8 +64,8 @@ func (a *AssetApiService) GetAssetByIdExecute(r ApiGetAssetByIdRequest) (*Asset,
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/asset/{asset-id}"
-	localVarPath = strings.Replace(localVarPath, "{"+"asset-id"+"}", url.PathEscape(parameterToString(r.assetId, "")), -1)
+	localVarPath := localBasePath + "/eliona/{eliona-id}"
+	localVarPath = strings.Replace(localVarPath, "{"+"eliona-id"+"}", url.PathEscape(parameterToString(r.assetId, "")), -1)
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
@@ -136,14 +136,14 @@ func (r ApiPostAssetRequest) Asset(asset Asset) ApiPostAssetRequest {
 	return r
 }
 
-func (r ApiPostAssetRequest) Execute() (*Asset, *http.Response, error) {
+func (r ApiPostAssetRequest) Execute() (Asset, *http.Response, error) {
 	return r.ApiService.PostAssetExecute(r)
 }
 
 /*
-PostAsset Create or update an asset
+PostAsset Create or update an eliona
 
-Creates an asset if no asset with the same projectId and globalAssetIdentifier already exists. If there is such an asset, the asset is updated.
+Creates an eliona if no eliona with the same projectId and globalAssetIdentifier already exists. If there is such an eliona, the eliona is updated.
 
  @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
  @return ApiPostAssetRequest
@@ -170,13 +170,13 @@ func (a *AssetApiService) PostAssetExecute(r ApiPostAssetRequest) (*Asset, *http
 		return localVarReturnValue, nil, &GenericOpenAPIError{error: err.Error()}
 	}
 
-	localVarPath := localBasePath + "/asset"
+	localVarPath := localBasePath + "/eliona"
 
 	localVarHeaderParams := make(map[string]string)
 	localVarQueryParams := url.Values{}
 	localVarFormParams := url.Values{}
 	if r.asset == nil {
-		return localVarReturnValue, nil, reportError("asset is required and must be specified")
+		return localVarReturnValue, nil, reportError("eliona is required and must be specified")
 	}
 
 	// to determine the Content-Type header

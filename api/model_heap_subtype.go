@@ -15,7 +15,7 @@ import (
 	"fmt"
 )
 
-// HeapSubtype Type of asset heap data
+// HeapSubtype Type of eliona heap data
 type HeapSubtype string
 
 // List of HeapSubtype
