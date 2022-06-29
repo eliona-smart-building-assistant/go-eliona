@@ -17,7 +17,9 @@ package common
 
 import (
 	"github.com/stretchr/testify/assert"
+	"sync/atomic"
 	"testing"
+	"time"
 )
 
 func TestGetenv(t *testing.T) {
@@ -32,4 +34,31 @@ func TestAppName(t *testing.T) {
 	assert.Equal(t, "", AppName())
 	t.Setenv("APPNAME", "foobar")
 	assert.Equal(t, "foobar", AppName())
+}
+
+func TestRunOnce(t *testing.T) {
+	var counter int64 = 1
+	runsOnlyOnceAtSameTime(&counter)
+	assert.Equal(t, int64(2), counter)
+	RunOnce(func() { runsOnlyOnceAtSameTime(&counter) }, 4711)
+	time.Sleep(time.Millisecond * 10)
+	assert.Equal(t, int64(3), counter)
+	RunOnce(func() { runsOnlyOnceAtSameTime(&counter) }, 4711)
+	time.Sleep(time.Millisecond * 10)
+	assert.Equal(t, int64(3), counter)
+	RunOnce(func() { runsOnlyOnceAtSameTime(&counter) }, 4712)
+	time.Sleep(time.Millisecond * 10)
+	assert.Equal(t, int64(4), counter)
+	RunOnce(func() { runsOnlyOnceAtSameTime(&counter) }, 4711)
+	time.Sleep(time.Millisecond * 10)
+	assert.Equal(t, int64(4), counter)
+	time.Sleep(time.Millisecond * 100)
+	RunOnce(func() { runsOnlyOnceAtSameTime(&counter) }, 4711)
+	time.Sleep(time.Millisecond * 10)
+	assert.Equal(t, int64(5), counter)
+}
+
+func runsOnlyOnceAtSameTime(counter *int64) {
+	atomic.AddInt64(counter, 1)
+	time.Sleep(time.Millisecond * 100)
 }

@@ -37,6 +37,11 @@ func NewPostRequestWithBearer(url string, body any, token string) (*http.Request
 	return newRequestWithBearerAndBody(url, body, "POST", token)
 }
 
+// NewPutRequestWithBearer creates a new request for the given url. The url have is authenticated with a barrier token.
+func NewPutRequestWithBearer(url string, body any, token string) (*http.Request, error) {
+	return newRequestWithBearerAndBody(url, body, "PUT", token)
+}
+
 func newRequestWithBearerAndBody(url string, body any, method string, token string) (*http.Request, error) {
 
 	// Create a new request
@@ -73,6 +78,12 @@ func NewRequest(url string) (*http.Request, error) {
 // authentication. For authentication use other functions like NewPostRequestWithBearer.
 func NewPostRequest(url string, body any) (*http.Request, error) {
 	return newRequestWithBody(url, body, "POST")
+}
+
+// NewPutRequest creates a new request for the given url and the body as payload. The url have to provide free access without any
+// authentication. For authentication use other functions like NewPutRequestWithBearer.
+func NewPutRequest(url string, body any) (*http.Request, error) {
+	return newRequestWithBody(url, body, "PUT")
 }
 
 func newRequestWithBody(url string, body any, method string) (*http.Request, error) {

@@ -1,2 +1,5 @@
 *.iml
 .idea/**
+api/.openapi-generator/**
+api/api/**
+openapi-generator-cli-6.0.0.jar

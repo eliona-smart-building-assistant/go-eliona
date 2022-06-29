@@ -13,78 +13,13 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package apps
+package appdb
 
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
-	"os"
-	"os/signal"
-	"sync"
-	"syscall"
-	"time"
 )
-
-// Map to check if a function started with RunOnce is currently running.
-var runOnceIds sync.Map
-
-// RunOnce starts a function if this function not currently running. RunOnce knows, with function is currently
-// running (identified by id) and skips starting the function again.
-func RunOnce(function func(), id any) {
-	go func() {
-		_, alreadyRuns := runOnceIds.Load(id)
-		if alreadyRuns {
-			log.Debug("Apps", "Function with id %v is already running. Skip function.", id)
-		} else {
-			runOnceIds.Store(id, nil)
-			function()
-			runOnceIds.Delete(id)
-		}
-	}()
-}
-
-// WaitFor helps to start multiple functions in parallel and waits until all functions are completed. Normally one app has
-// only one main functions that runs in an infinite loop, except the app is stopped externally, e.g. during a shut-down
-// of the eliona environment.
-func WaitFor(functions ...func()) {
-	var waitGroup sync.WaitGroup
-	waitGroup.Add(len(functions))
-	for _, function := range functions {
-		function := function
-		go func() {
-			function()
-			waitGroup.Done()
-		}()
-	}
-	waitGroup.Wait()
-}
-
-// Loop wraps a function in an endless loop and calls the function in the defined interval.
-func Loop(function func(), interval time.Duration) func() {
-	return func() {
-		osSignals := make(chan os.Signal, 1)
-		defer close(osSignals)
-		signal.Notify(osSignals, syscall.SIGTERM, syscall.SIGQUIT, syscall.SIGINT)
-		for {
-			function()
-			select {
-			case <-time.After(interval):
-			case s := <-osSignals:
-				log.Debug("Apps", "Loop terminated by os signal %s.", s)
-				return
-			}
-		}
-	}
-}
-
-// The ExecSqlFile returns a function which executes the given sql file. This method can be used
-// as parameter for the Init and Patch function.
-func ExecSqlFile(path string) func(connection db.Connection) error {
-	return func(connection db.Connection) error {
-		return db.ExecFile(connection, path)
-	}
-}
 
 // The Init function must be used to run all the elements required for the app initialization process.
 // This function guarantees that everything will only run once when the app is first launched.
