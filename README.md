@@ -21,14 +21,10 @@ import "github.com/eliona-smart-building-assistant/go-eliona"
 
 and run `go get` without parameters.
 
-
 ## Usage ##
-
-Usage is explained within the packages.
-
+ 
 - [Logging](log) for logging purposes
 - [Database](db) to access databases
 - [Http](http) to handle web requests
 - [Kafka](kafka) to handle kafka topics
-- [Apps](apps) to handle apps for eliona
-- [Assets](assets) to deal with eliona assets and heaps
+- [API](api) to access API (generated, see [instruction for generation](api/README.md))
