@@ -13,7 +13,7 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package eliona
+package app
 
 import (
 	"context"
@@ -30,11 +30,11 @@ func ExecSqlFile(path string) func(connection db.Connection) error {
 	}
 }
 
-// The InitApp function must be used to run all the elements required for the app initialization process.
+// The Init function must be used to run all the elements required for the app initialization process.
 // This function guarantees that everything will only run once when the app is first launched.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func InitApp(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
+func Init(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
 	if appRegistered(appName) {
 		log.Debug("Apps", "App %s is already initialized. Skip init.", appName)
 		return
@@ -79,11 +79,11 @@ func registerApp(appName string) error {
 	return err
 }
 
-// The PatchApp function must be used to run all the elements required for the patch process.
+// The Patch function must be used to run all the elements required for the patch process.
 // This function guarantees that everything will only run once when the patch is applied.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func PatchApp(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
+func Patch(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
 	if patchApplied(appName, patchName) {
 		log.Debug("Apps", "App %s patch %s is already installed. Skip patching.", appName, patchName)
 		return

@@ -1,11 +1,11 @@
-# go-eliona Assets
-The go-eliona Assets package provides functions and data structures to handle assets and heaps.
+# go-eliona Asset DB
+The go-eliona Assets package provides functions and data structures to handle assets and heaps. This package uses a direct connection to the Eliona DB.
 
 ## Installation
 To use the assets package you must import the package.
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/assets"
+import "github.com/eliona-smart-building-assistant/go-eliona/assetdb"
 ```
 
 The package needs a database connection. To create and configure a database connection
@@ -16,8 +16,7 @@ have a look at [database](../db) package.
 After installation, you can use the assets package.
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/assets"
-import "github.com/eliona-smart-building-assistant/go-eliona/db"
+import "github.com/eliona-smart-building-assistant/go-eliona/assetdb"
 ```
 
 ### Configuring asset types and attributes
@@ -25,8 +24,8 @@ import "github.com/eliona-smart-building-assistant/go-eliona/db"
 You can create new assets types and attributes or change existing ones. For example, if you want to create a weather location asset type that holds temperature data, you have to create the following.
 
 ```go
-_ = assets.UpsertAssetType(db.Pool(), assets.AssetType{Id: "weather_location", Custom: true, Vendor: "ITEC AG", Translation: Translation{German: "Wetterstation", English: "Weather location"}})
-_ = assets.UpsertAssetTypeAttribute(db.Pool(), assets.AssetTypeAttribute{AssetTypeId: "weather_location", AttributeType: "temperature", Id: "temperature", Subtype: assets.InputSubtype, Enable: true, Translation: Translation{German: "Temperatur", English: "Temperature"}})
+_ = assetdb.UpsertAssetType(db.Pool(), assetdb.AssetType{Id: "weather_location", Custom: true, Vendor: "ITEC AG", Translation: Translation{German: "Wetterstation", English: "Weather location"}})
+_ = assetdb.UpsertAssetTypeAttribute(db.Pool(), assetdb.AssetTypeAttribute{AssetTypeId: "weather_location", AttributeType: "temperature", Id: "temperature", Subtype: assetdb.InputSubtype, Enable: true, Translation: Translation{German: "Temperatur", English: "Temperature"}})
 ```
 
 ### Write a heap
@@ -47,7 +46,7 @@ data and timestamp are updated. The heap has 'now' as timestamp and a temperatur
 and `Celsius` as unit. This would be written as `{"Unit": "Celsius", "Value": 30}` to heap data.
 
 ```go
-_ = assets.UpsertHeap(db.Pool(), assets.Heap[Temperature]{2, InfoSubtype, time.Time{}, Temperature{35, "Celsius"}})
+_ = assetdb.UpsertHeap(db.Pool(), assetdb.Heap[Temperature]{2, InfoSubtype, time.Time{}, Temperature{35, "Celsius"}})
 ```
 
 ### Listen for changed heaps
@@ -60,10 +59,10 @@ to modify the setting of assets. To do this, use the `ListenHeap` function and a
 data structure including the `Temperature` structure (`Heap[Temperature]`).
 
 ```go
-heaps := make(chan assets.Heap[Temperature])
-go assets.ListenHeap(db.Pool(), heaps)
+heaps := make(chan assetdb.Heap[Temperature])
+go assetdb.ListenHeap(db.Pool(), heaps)
 for heap := range heaps {
-    if heap.Subtype == assets.OutputSubtype {
+    if heap.Subtype == assetdb.OutputSubtype {
         log.Debug("Assets", "Do something for asset with id %d and value %d unit %s.", heap.AssetId, heap.GetData().Value, heap.GetData().Unit)
     }
 }

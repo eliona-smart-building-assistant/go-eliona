@@ -14,20 +14,20 @@ import (
 	"encoding/json"
 )
 
-// AssetType A type of assets
+// AssetType A type of assetdb
 type AssetType struct {
 	// The unique name for this asset type
 	Name string `json:"name"`
 	// Is this a customer created type or not
 	Custom bool `json:"custom"`
-	// The vendor providing assets of this type
+	// The vendor providing assetdb of this type
 	Vendor *string `json:"vendor,omitempty"`
-	// The specific model of assets of this type
+	// The specific model of assetdb of this type
 	Model       *string      `json:"model,omitempty"`
 	Translation *Translation `json:"translation,omitempty"`
-	// The url describing assets of this type
+	// The url describing assetdb of this type
 	Urldoc *string `json:"urldoc,omitempty"`
-	// Icon name corresponding to assets of this type
+	// Icon name corresponding to assetdb of this type
 	Icon *string `json:"icon,omitempty"`
 	// List of named attributes
 	Attributes []Attribute `json:"attributes,omitempty"`

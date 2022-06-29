@@ -1,26 +1,26 @@
-# go-eliona Apps 
-The go-eliona Apps package provides handy methods to handle app in an eliona environment.
+# go-eliona App
+The go-eliona App package provides handy methods to handle app in an eliona environment. This package uses the [Eliona API](https://github.com/eliona-smart-building-assistant/eliona-api) to access Eliona.
 
 ## Installation
 To use the apps package you must import the package.
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/apps"
+import "github.com/eliona-smart-building-assistant/go-eliona/app"
 ```
+
+The package needs an Api server address. To configure this have a look at [api](../api) package.
 
 ## Usage
 
 After installation, you can initialize and patch apps in an eliona environment. 
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/apps"
+import "github.com/eliona-smart-building-assistant/go-eliona/app"
 ```
 
 ### Initialize your app
 
-For the first start the app should be initialized. You can create your own schema and database tables to
-persist configuration data for the app. Or you create example data that shows users how your app works.
-To do this, you can use the `Init` function. This function is called only one time. After this the `Init` function skips all executions.
+For the first start the app should be initialized. You can create your own schema and database tables to persist configuration data for the app. Or you create example data that shows users how your app works. To do this, you can use the `Init` function. This function is called only one time. After this the `Init` function skips all executions.
 
 ```go
 apps.Init(db.Pool(), common.AppName(),

@@ -13,14 +13,14 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package assets
+package assetdb
 
 import (
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 	"math"
 )
 
-// Translation defines a translation used inside assets
+// Translation defines a translation used inside assetdb
 type Translation struct {
 	German  string `json:"de,omitempty"`
 	English string `json:"en,omitempty"`
@@ -143,7 +143,7 @@ func ExistAsset(connection db.Connection, assetId int) (bool, error) {
 	return count > 0, nil
 }
 
-// UpsertAsset insert or updates an assets and returns the id
+// UpsertAsset insert or updates an assetdb and returns the id
 func UpsertAsset(connection db.Connection, asset Asset) (int, error) {
 	assetId, err := db.QuerySingleRow[int](connection,
 		"with asset_id as ("+

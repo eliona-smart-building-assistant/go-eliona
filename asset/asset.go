@@ -13,7 +13,7 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package eliona
+package asset
 
 import (
 	"context"
@@ -32,13 +32,13 @@ func ExistAsset(assetId int32) (bool, error) {
 	return asset != nil, err
 }
 
-// UpsertAsset insert or updates an assets and returns the id
+// UpsertAsset insert or updates an assetdb and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
 	upsertedAsset, _, err := api.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
 	return upsertedAsset.Id, err
 }
 
-// UpsertAssetTypeAttribute insert or updates an assets and returns the id
+// UpsertAssetTypeAttribute insert or updates an assetdb and returns the id
 func UpsertAssetTypeAttribute(attribute api.Attribute) error {
 	_, err := api.NewClient().AssetTypeApi.PostAssetTypeAttribute(context.Background()).Attribute(attribute).Execute()
 	return err

@@ -9,10 +9,16 @@ To use the log package you must import the package.
 import "github.com/eliona-smart-building-assistant/go-eliona/api"
 ```
 
-To use a proxy, set the environment variable HTTP_PROXY:
+To define the Api server endpoint use the `API_ENDPOINT` environment variable:
 
 ```bash
-export HTTP_PROXY=http://proxy_name:proxy_port
+export API_ENDPOINT=https://api.eliona.io/v2
+```
+
+To use a proxy, set the environment variable `HTTP_PROXY`:
+
+```bash
+export HTTP_PROXY=https://proxy_name:proxy_port
 ```
 
 ## Usage

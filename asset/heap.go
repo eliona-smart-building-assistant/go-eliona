@@ -13,26 +13,28 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package eliona
+package asset
 
 import (
-	"fmt"
+	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
-	"os"
-	"testing"
-	"time"
 )
 
-type Temperature struct {
-	Value int    `json:"value"`
-	Unit  string `json:"unit"`
+// UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
+// Otherwise, the timestamp and the data are updated.
+func UpsertHeap(heap api.Heap) error {
+	_, err := api.NewClient().HeapApi.PostHeap(context.Background()).Heap(heap).Execute()
+	return err
 }
 
-func TestUpsertHeap(t *testing.T) {
-	os.Setenv("API_ENDPOINT", "http://localhost:8888/apps/v2")
-	temperature := Temperature{35, "Celsius"}
-	err := UpsertHeap(api.Heap{AssetId: 2, Subtype: api.INPUT, Timestamp: &time.Time{}, Data: api.StructToMap(temperature)})
+// UpsertHeapIfAssetExists upsert the heap if the eliona id exists. Otherwise, the upsert is ignored
+func UpsertHeapIfAssetExists[T any](heap api.Heap) error {
+	exists, err := ExistAsset(heap.AssetId)
 	if err != nil {
-		fmt.Println(err)
+		return err
 	}
+	if exists {
+		return UpsertHeap(heap)
+	}
+	return nil
 }

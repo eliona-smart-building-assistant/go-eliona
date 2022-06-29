@@ -46,7 +46,7 @@ type Connection interface {
 }
 
 // ConnectionConfig returns the connection config defined by CONNECTION_STRING and APPNAME environment variables.
-// This is sufficient for the most common cases using connections within eliona apps.
+// This is sufficient for the most common cases using connections within eliona appdb.
 func ConnectionConfig() *pgx.ConnConfig {
 	config, err := pgx.ParseConfig(ConnectionString())
 	if err != nil {
@@ -80,7 +80,7 @@ func ExecFile(connection Connection, path string) error {
 }
 
 // NewConnection returns a new connection defined by CONNECTION_STRING environment variable.
-// The new connection can be hold by apps and must be closed independently.
+// The new connection can be hold by appdb and must be closed independently.
 func NewConnection() *pgx.Conn {
 	connection, err := pgx.ConnectConfig(context.Background(), ConnectionConfig())
 	if err != nil {

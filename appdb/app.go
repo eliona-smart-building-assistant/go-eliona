@@ -13,21 +13,13 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package apps
+package appdb
 
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/db"
 	"github.com/eliona-smart-building-assistant/go-eliona/log"
 )
-
-// The ExecSqlFile returns a function which executes the given sql file. This method can be used
-// as parameter for the Init and Patch function.
-func ExecSqlFile(path string) func(connection db.Connection) error {
-	return func(connection db.Connection) error {
-		return db.ExecFile(connection, path)
-	}
-}
 
 // The Init function must be used to run all the elements required for the app initialization process.
 // This function guarantees that everything will only run once when the app is first launched.

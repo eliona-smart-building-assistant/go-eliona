@@ -14,7 +14,7 @@ import (
 	"encoding/json"
 )
 
-// Attribute Named attribute to store data of assets
+// Attribute Named attribute to store data of assetdb
 type Attribute struct {
 	// The unique name for the asset type
 	AssetTypeName *string `json:"assetTypeName,omitempty"`
