@@ -33,24 +33,24 @@ func Init(connection db.Connection, appName string, initFunctions ...func(connec
 
 	transaction, err := db.Begin(connection)
 	if err != nil {
-		log.Fatal("Apps", "Cannot start transaction to init app %s.", appName)
+		log.Fatal("Apps", "Cannot start transaction to init app %s: %v", appName, err)
 	}
 
 	for i, initFunction := range initFunctions {
 		err := initFunction(transaction)
 		if err != nil {
-			log.Fatal("Apps", "Cannot execute function %d to init app %s.", i, appName)
+			log.Fatal("Apps", "Cannot execute function %d to init app %s: %v", i, appName, err)
 		}
 	}
 
 	err = registerApp(transaction, appName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot register app %s as initialized.", appName)
+		log.Fatal("Apps", "Cannot register app %s as initialized: %v", appName, err)
 	}
 
 	err = transaction.Commit(context.Background())
 	if err != nil {
-		log.Fatal("Apps", "Cannot commit init for app %s.", appName)
+		log.Fatal("Apps", "Cannot commit init for app %s: %v", appName, err)
 	}
 }
 
@@ -84,24 +84,24 @@ func Patch(connection db.Connection, appName string, patchName string, patchFunc
 
 	transaction, err := db.Begin(connection)
 	if err != nil {
-		log.Fatal("Apps", "Cannot start transaction to patch %s app %s.", patchName, appName)
+		log.Fatal("Apps", "Cannot start transaction to patch %s app %s: %v", patchName, appName, err)
 	}
 
 	for i, patchFunction := range patchFunctions {
 		err := patchFunction(transaction)
 		if err != nil {
-			log.Fatal("Apps", "Cannot execute function %d to patch %s app %s.", i, patchName, appName)
+			log.Fatal("Apps", "Cannot execute function %d to patch %s app %s: %v", i, patchName, appName, err)
 		}
 	}
 
 	err = registerPatch(transaction, appName, patchName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot register patch %s for app %s.", patchName, appName)
+		log.Fatal("Apps", "Cannot register patch %s for app %s: %v", patchName, appName, err)
 	}
 
 	err = transaction.Commit(context.Background())
 	if err != nil {
-		log.Fatal("Apps", "Cannot commit patch %s for app %s.", patchName, appName)
+		log.Fatal("Apps", "Cannot commit patch %s for app %s: %v", patchName, appName, err)
 	}
 }
 

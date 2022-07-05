@@ -17,8 +17,10 @@ package common
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"sync"
 	"syscall"
 	"time"
@@ -81,6 +83,20 @@ func Getenv(key, fallback string) string {
 		return value
 	}
 	return fallback
+}
+
+// UnmarshalFile returns the content of the file as object of type T
+func UnmarshalFile[T any](path string) (T, error) {
+	var object T
+	data, err := ioutil.ReadFile(filepath.Join(path))
+	if err != nil {
+		return object, err
+	}
+	err = json.Unmarshal(data, &object)
+	if err != nil {
+		return object, err
+	}
+	return object, nil
 }
 
 // AppName returns the name of the app uses the library. The app name is defined in the
