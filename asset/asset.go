@@ -18,6 +18,8 @@ package asset
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
+	"github.com/eliona-smart-building-assistant/go-eliona/common"
+	"github.com/eliona-smart-building-assistant/go-eliona/db"
 )
 
 // UpsertAssetType insert or, when already exist, updates an asset type
@@ -32,14 +34,32 @@ func ExistAsset(assetId int32) (bool, error) {
 	return asset != nil, err
 }
 
-// UpsertAsset insert or updates an assetdb and returns the id
+// UpsertAsset insert or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
 	upsertedAsset, _, err := api.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
 	return upsertedAsset.Id, err
 }
 
-// UpsertAssetTypeAttribute insert or updates an assetdb and returns the id
+// UpsertAssetTypeAttribute insert or updates an asset and returns the id
 func UpsertAssetTypeAttribute(attribute api.Attribute) error {
 	_, err := api.NewClient().AssetTypeApi.PostAssetTypeAttribute(context.Background()).Attribute(attribute).Execute()
 	return err
+}
+
+// InitAssetType inserts or updates the given asset type.
+func InitAssetType(assetType api.AssetType) func(db.Connection) error {
+	return func(db.Connection) error {
+		return UpsertAssetType(assetType)
+	}
+}
+
+// InitAssetTypeFile inserts or updates the asset type build from the content of the given file.
+func InitAssetTypeFile(path string) func(db.Connection) error {
+	return func(db.Connection) error {
+		assetType, err := common.UnmarshalFile[api.AssetType](path)
+		if err != nil {
+			return err
+		}
+		return UpsertAssetType(assetType)
+	}
 }
