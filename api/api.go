@@ -16,7 +16,7 @@
 package api
 
 import (
-	"github.com/eliona-smart-building-assistant/go-eliona/common"
+	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
 func ConnectionString() string {
