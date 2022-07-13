@@ -18,10 +18,23 @@ package dashboard
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
+	"github.com/eliona-smart-building-assistant/go-eliona/common"
+	"github.com/eliona-smart-building-assistant/go-eliona/db"
 )
 
 // UpsertWidgetType insert or updates an asset and returns the id
 func UpsertWidgetType(widgetType api.WidgetType) error {
 	_, err := api.NewClient().DashboardApi.PostWidgetType(context.Background()).WidgetType(widgetType).Execute()
 	return err
+}
+
+// InitWidgetTypeFile inserts or updates the type build from the content of the given file.
+func InitWidgetTypeFile(path string) func(db.Connection) error {
+	return func(db.Connection) error {
+		widgetType, err := common.UnmarshalFile[api.WidgetType](path)
+		if err != nil {
+			return err
+		}
+		return UpsertWidgetType(widgetType)
+	}
 }
