@@ -13,4 +13,15 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package appdb
+package dashboard
+
+import (
+	"context"
+	"github.com/eliona-smart-building-assistant/go-eliona/api"
+)
+
+// UpsertWidgetType insert or updates an asset and returns the id
+func UpsertWidgetType(widgetType api.WidgetType) error {
+	_, err := api.NewClient().DashboardApi.PostWidgetType(context.Background()).WidgetType(widgetType).Execute()
+	return err
+}

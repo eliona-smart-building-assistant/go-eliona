@@ -7,7 +7,7 @@ To use the assets package you must import the package.
 ```go
 import "github.com/eliona-smart-building-assistant/go-eliona/asset"
 ```
-The package needs an Api server address. To create and configure have a look at [api](../api) package.
+The package needs an Api server address. To create and configure have a look at [api](../../api) package.
 
 ## Usage
 

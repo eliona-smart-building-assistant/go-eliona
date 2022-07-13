@@ -28,6 +28,24 @@ func UpsertAssetType(assetType api.AssetType) error {
 	return err
 }
 
+// GetAssetChildren returns the list of children for the asset
+func GetAssetChildren(assetId int32) ([]api.AssetRelation, error) {
+	children, _, err := api.NewClient().AssetApi.GetAssetChildren(context.Background(), assetId).Execute()
+	return children, err
+}
+
+// GetAssetParents returns the list of parents for the asset
+func GetAssetParents(assetId int32) ([]api.AssetRelation, error) {
+	parents, _, err := api.NewClient().AssetApi.GetAssetParents(context.Background(), assetId).Execute()
+	return parents, err
+}
+
+// SetAssetParents sets the parents
+func SetAssetParents(assetId int32, parents []api.AssetRelation) error {
+	_, err := api.NewClient().AssetApi.SetAssetParents(context.Background(), assetId).AssetRelation(parents).Execute()
+	return err
+}
+
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
 	asset, _, err := api.NewClient().AssetApi.GetAssetById(context.Background(), assetId).Execute()

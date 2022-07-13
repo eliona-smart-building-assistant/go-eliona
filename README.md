@@ -28,3 +28,7 @@ and run `go get` without parameters.
 - [Http](http) to handle web requests
 - [Kafka](kafka) to handle kafka topics
 - [Api](api) to access the [Eliona Api](https://github.com/eliona-smart-building-assistant/eliona-api) (generated)
+- [Eliona](eliona) to handle specific use cases
+  - [App](eliona/app) functions for apps and patches
+  - [Asset](eliona/asset) asset and asset type management 
+  - [Dashboard](eliona/dashboard) functions for dashboards
