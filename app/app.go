@@ -18,9 +18,16 @@ package app
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
-	"github.com/eliona-smart-building-assistant/go-eliona/db"
-	"github.com/eliona-smart-building-assistant/go-eliona/log"
+	"github.com/eliona-smart-building-assistant/go-utils/common"
+	"github.com/eliona-smart-building-assistant/go-utils/db"
+	"github.com/eliona-smart-building-assistant/go-utils/log"
 )
+
+// AppName returns the name of the app uses the library. The app name is defined in the
+// environment variable APPNAME. If not defined, the AppName returns nil.
+func AppName() string {
+	return common.Getenv("APPNAME", "")
+}
 
 // The ExecSqlFile returns a function which executes the given sql file. This method can be used
 // as parameter for the Init and Patch function.

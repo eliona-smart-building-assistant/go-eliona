@@ -13,22 +13,15 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package kafka
+package app
 
 import (
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
-type Temperature struct {
-	Value int
-	Unit  string
-}
-
-func TestProduce(t *testing.T) {
-	t.Setenv("BROKERS", "")
-	mock := NewProducer()
-	defer mock.Close()
-	err := Produce(mock, "climate", Temperature{25, "Celsius"})
-	assert.Nil(t, err)
+func TestAppName(t *testing.T) {
+	assert.Equal(t, "", AppName())
+	t.Setenv("APPNAME", "foobar")
+	assert.Equal(t, "foobar", AppName())
 }

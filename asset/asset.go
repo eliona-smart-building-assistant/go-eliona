@@ -18,8 +18,8 @@ package asset
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
-	"github.com/eliona-smart-building-assistant/go-eliona/common"
-	"github.com/eliona-smart-building-assistant/go-eliona/db"
+	"github.com/eliona-smart-building-assistant/go-utils/common"
+	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
 
 // UpsertAssetType insert or, when already exist, updates an asset type

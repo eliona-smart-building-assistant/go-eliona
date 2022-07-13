@@ -8,7 +8,7 @@ To use the apps package you must import the package.
 import "github.com/eliona-smart-building-assistant/go-eliona/app"
 ```
 
-The package needs an Api server address. To configure this have a look at [api](../../api) package.
+The package needs an Api server address. To configure this have a look at [api](../api) package.
 
 ## Usage
 

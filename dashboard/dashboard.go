@@ -18,8 +18,8 @@ package dashboard
 import (
 	"context"
 	"github.com/eliona-smart-building-assistant/go-eliona/api"
-	"github.com/eliona-smart-building-assistant/go-eliona/common"
-	"github.com/eliona-smart-building-assistant/go-eliona/db"
+	"github.com/eliona-smart-building-assistant/go-utils/common"
+	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
 
 // UpsertWidgetType insert or updates an asset and returns the id
