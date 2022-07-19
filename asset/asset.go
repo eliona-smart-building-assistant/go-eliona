@@ -17,50 +17,51 @@ package asset
 
 import (
 	"context"
-	"github.com/eliona-smart-building-assistant/go-eliona/api"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
 
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(assetType api.AssetType) error {
-	_, err := api.NewClient().AssetTypeApi.PostAssetType(context.Background()).AssetType(assetType).Execute()
+	_, err := client.NewClient().AssetTypeApi.PostAssetType(context.Background()).AssetType(assetType).Execute()
 	return err
 }
 
 // GetAssetChildren returns the list of children for the asset
 func GetAssetChildren(assetId int32) ([]api.AssetRelation, error) {
-	children, _, err := api.NewClient().AssetApi.GetAssetChildren(context.Background(), assetId).Execute()
+	children, _, err := client.NewClient().AssetApi.GetAssetChildren(context.Background(), assetId).Execute()
 	return children, err
 }
 
 // GetAssetParents returns the list of parents for the asset
 func GetAssetParents(assetId int32) ([]api.AssetRelation, error) {
-	parents, _, err := api.NewClient().AssetApi.GetAssetParents(context.Background(), assetId).Execute()
+	parents, _, err := client.NewClient().AssetApi.GetAssetParents(context.Background(), assetId).Execute()
 	return parents, err
 }
 
 // SetAssetParents sets the parents
 func SetAssetParents(assetId int32, parents []api.AssetRelation) error {
-	_, err := api.NewClient().AssetApi.SetAssetParents(context.Background(), assetId).AssetRelation(parents).Execute()
+	_, err := client.NewClient().AssetApi.SetAssetParents(context.Background(), assetId).AssetRelation(parents).Execute()
 	return err
 }
 
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
-	asset, _, err := api.NewClient().AssetApi.GetAssetById(context.Background(), assetId).Execute()
+	asset, _, err := client.NewClient().AssetApi.GetAssetById(context.Background(), assetId).Execute()
 	return asset != nil, err
 }
 
 // UpsertAsset insert or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
-	upsertedAsset, _, err := api.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
+	upsertedAsset, _, err := client.NewClient().AssetApi.PostAsset(context.Background()).Asset(asset).Execute()
 	return upsertedAsset.Id, err
 }
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
 func UpsertAssetTypeAttribute(attribute api.Attribute) error {
-	_, err := api.NewClient().AssetTypeApi.PostAssetTypeAttribute(context.Background()).Attribute(attribute).Execute()
+	_, err := client.NewClient().AssetTypeApi.PostAssetTypeAttribute(context.Background()).Attribute(attribute).Execute()
 	return err
 }
 

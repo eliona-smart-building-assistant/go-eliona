@@ -17,13 +17,14 @@ package asset
 
 import (
 	"context"
-	"github.com/eliona-smart-building-assistant/go-eliona/api"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
 
 // UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
 func UpsertHeap(heap api.Heap) error {
-	_, err := api.NewClient().HeapApi.PostHeap(context.Background()).Heap(heap).Execute()
+	_, err := client.NewClient().HeapApi.PostHeap(context.Background()).Heap(heap).Execute()
 	return err
 }
 

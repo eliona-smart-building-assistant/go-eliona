@@ -3,9 +3,9 @@ module github.com/eliona-smart-building-assistant/go-eliona
 go 1.18
 
 require (
+	github.com/eliona-smart-building-assistant/go-eliona-api-client v1.0.0
 	github.com/eliona-smart-building-assistant/go-utils v1.0.0
 	github.com/stretchr/testify v1.8.0
-	golang.org/x/oauth2 v0.0.0-20190226205417-e64efc72b421
 )
 
 require (
@@ -23,8 +23,9 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20211209193657-4570a0811e8b // indirect
 	golang.org/x/net v0.0.0-20211112202133-69e39bad7dc2 // indirect
+	golang.org/x/oauth2 v0.0.0-20210323180902-22b0adad7558 // indirect
 	golang.org/x/text v0.3.7 // indirect
-	google.golang.org/appengine v1.4.0 // indirect
+	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/protobuf v1.27.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
