@@ -31,7 +31,7 @@ func UpsertAssetType(assetType api.AssetType) error {
 
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
-	asset, _, err := client.NewClient().AssetsApi.GetAssetById(context.Background(), assetId).Execute()
+	asset, _, err := client.NewClient().AssetsApi.GetAssetById(context.Background(), assetId).WithChildren(false).Execute()
 	return asset != nil, err
 }
 
