@@ -25,7 +25,7 @@ import (
 
 // UpsertWidgetType insert or updates an asset and returns the id
 func UpsertWidgetType(widgetType api.WidgetType) error {
-	_, err := client.NewClient().DashboardApi.PostWidgetType(context.Background()).WidgetType(widgetType).Execute()
+	_, err := client.NewClient().DashboardsApi.PutWidgetType(context.Background()).WidgetType(widgetType).Execute()
 	return err
 }
 

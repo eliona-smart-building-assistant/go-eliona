@@ -24,7 +24,7 @@ import (
 // UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
 func UpsertHeap(heap api.Heap) error {
-	_, err := client.NewClient().HeapApi.PostHeap(context.Background()).Heap(heap).Execute()
+	_, err := client.NewClient().HeapsApi.PutHeap(context.Background()).Heap(heap).Execute()
 	return err
 }
 
