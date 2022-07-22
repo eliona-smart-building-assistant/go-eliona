@@ -1,0 +1,166 @@
+{
+	"attributes": [
+		{
+			"enable": true,
+			"name": "openings",
+			"pipeline": {
+				"mode": "avg",
+				"raster": [
+					"M15",
+					"H1",
+					"DAY"
+				]
+			},
+			"precision": 0,
+			"subtype": "input",
+			"translation": {
+				"de": "Öffnungen seit Leerung",
+				"en": "Openings since emptying"
+			},
+			"type": "device-status"
+		},
+		{
+			"enable": true,
+			"name": "bat_level",
+			"pipeline": {
+				"mode": "avg",
+				"raster": [
+					"M15",
+					"H1",
+					"DAY"
+				]
+			},
+			"subtype": "input",
+			"translation": {
+				"de": "Batteriestand",
+				"en": "Battery Level"
+			},
+			"type": "battery-voltage",
+			"unit": "%"
+		},
+		{
+			"enable": true,
+			"name": "volume",
+			"subtype": "info",
+			"translation": {
+				"de": "Gesamtvolumen",
+				"en": "Total Volume"
+			},
+			"type": "device-info",
+			"unit": "l"
+		},
+		{
+			"enable": true,
+			"name": "alarm",
+			"subtype": "input",
+			"translation": {
+				"de": "Alarm",
+				"en": "Alarm"
+			},
+			"type": "device-status"
+		},
+		{
+			"enable": true,
+			"name": "totalopenings",
+			"pipeline": {
+				"mode": "avg",
+				"raster": [
+					"M15",
+					"H1",
+					"DAY"
+				]
+			},
+			"subtype": "input",
+			"translation": {
+				"de": "Total Öffnungen",
+				"en": "Total Openings"
+			},
+			"type": "device-status"
+		},
+		{
+			"enable": true,
+			"name": "volumepercent",
+			"pipeline": {
+				"mode": "avg",
+				"raster": [
+					"M15",
+					"H1",
+					"DAY"
+				]
+			},
+			"subtype": "input",
+			"translation": {
+				"de": "Füllstand",
+				"en": "Fill Level"
+			},
+			"type": "level",
+			"unit": "%"
+		},
+		{
+			"enable": true,
+			"name": "exp_percent",
+			"subtype": "status",
+			"translation": {
+				"de": "Erwarteter Füllstand Leerung",
+				"en": "Expected fill level emptying"
+			},
+			"type": "device-info",
+			"unit": "%"
+		},
+		{
+			"enable": true,
+			"name": "reg_date",
+			"subtype": "info",
+			"translation": {
+				"de": "Registrationsdatum",
+				"en": "Registration Date"
+			},
+			"type": "device-info"
+		},
+		{
+			"enable": true,
+			"name": "lastclean",
+			"precision": 0,
+			"subtype": "input",
+			"translation": {
+				"de": "Letzte Leerung",
+				"en": "Last emptying"
+			},
+			"type": "device-info",
+			"unit": "d"
+		},
+		{
+			"enable": true,
+			"name": "time",
+			"precision": 0,
+			"subtype": "input",
+			"translation": {
+				"de": "Nächste Leerung",
+				"en": "Next emptying"
+			},
+			"type": "device-info",
+			"unit": "d"
+		},
+		{
+			"enable": true,
+			"name": "last_contact",
+			"precision": 0,
+			"subtype": "input",
+			"translation": {
+				"de": "Letzter Kontakt",
+				"en": "Last Contact"
+			},
+			"type": "device-info",
+			"unit": "h"
+		}
+	],
+	"custom": true,
+	"icon": "trash",
+	"name": "Hailo FDS Bin",
+	"translation": {
+		"de": "FDS Web-API from Hailo",
+		"en": "Recycling station using FDS Web-API from Hailo"
+	},
+	"urldoc": "https://www.hailodigitalhub.de/",
+	"vendor": "Hailo"
+}
