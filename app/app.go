@@ -74,10 +74,10 @@ func Init(connection db.Connection, appName string, initFunctions ...func(connec
 // appRegistered checks if the app is already initialized.
 func appRegistered(appName string) bool {
 	app, _, err := client.NewClient().AppsApi.GetAppByName(context.Background(), appName).Execute()
-	if err != nil || app.Registered == nil {
+	if err != nil || !app.Registered.IsSet() {
 		return false
 	}
-	return *app.Registered
+	return *app.Registered.Get()
 }
 
 // registerApp marks that the app is now initialized and installed.
@@ -122,10 +122,10 @@ func Patch(connection db.Connection, appName string, patchName string, patchFunc
 // patchApplied checks if the patch is already applied.
 func patchApplied(appName string, patchName string) bool {
 	patch, _, err := client.NewClient().AppsApi.GetPatchByName(context.Background(), appName, patchName).Execute()
-	if err != nil || patch.Applied == nil {
+	if err != nil || !patch.Applied.IsSet() {
 		return false
 	}
-	return *patch.Applied
+	return *patch.Applied.Get()
 }
 
 // applyPatch marks that the patch is now applied.
