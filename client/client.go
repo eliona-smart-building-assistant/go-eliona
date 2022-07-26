@@ -20,12 +20,12 @@ import (
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
-func ConnectionString() string {
+func ApiEndpointString() string {
 	return common.Getenv("API_ENDPOINT", "http://eliona-api:8080/v2")
 }
 
 func NewClient() *api.APIClient {
 	cfg := api.NewConfiguration()
-	cfg.Servers = api.ServerConfigurations{{URL: ConnectionString()}}
+	cfg.Servers = api.ServerConfigurations{{URL: ApiEndpointString()}}
 	return api.NewAPIClient(cfg)
 }
