@@ -13,19 +13,17 @@
 //  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
-package client
+package asset
 
 import (
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
+	"github.com/stretchr/testify/assert"
+	"testing"
 )
 
-func ApiEndpointString() string {
-	return common.Getenv("API_ENDPOINT", "http://eliona-api:8080/v2")
-}
-
-func NewClient() *api.APIClient {
-	cfg := api.NewConfiguration()
-	cfg.Servers = api.ServerConfigurations{{URL: ApiEndpointString()}}
-	return api.NewAPIClient(cfg)
+func TestUnMarshal(t *testing.T) {
+	assetType, err := common.UnmarshalFile[api.AssetType]("test-asset-type.json")
+	assert.Nil(t, err)
+	assert.Equal(t, "trash", *assetType.Icon.Get())
 }
