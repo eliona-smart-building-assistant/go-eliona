@@ -21,21 +21,21 @@ import (
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
 
-// UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
+// UpsertData inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
-func UpsertHeap(heap api.Heap) error {
-	_, err := client.NewClient().HeapsApi.PutHeap(context.Background()).Heap(heap).Execute()
+func UpsertData(heap api.Data) error {
+	_, err := client.NewClient().DataApi.PutData(context.Background()).Data(heap).Execute()
 	return err
 }
 
-// UpsertHeapIfAssetExists upsert the heap if the eliona id exists. Otherwise, the upsert is ignored
-func UpsertHeapIfAssetExists[T any](heap api.Heap) error {
+// UpsertDataIfAssetExists upsert the heap if the eliona id exists. Otherwise, the upsert is ignored
+func UpsertDataIfAssetExists[T any](heap api.Data) error {
 	exists, err := ExistAsset(heap.AssetId)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return UpsertHeap(heap)
+		return UpsertData(heap)
 	}
 	return nil
 }
