@@ -25,7 +25,11 @@ import (
 
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(assetType api.AssetType) error {
-	_, err := client.NewClient().AssetTypesApi.PutAssetType(context.Background()).AssetType(assetType).Execute()
+	_, err := client.NewClient().AssetTypesApi.
+		PutAssetType(context.Background()).
+		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
+		AssetType(assetType).
+		Execute()
 	return err
 }
 
