@@ -16,7 +16,6 @@
 package asset
 
 import (
-	"context"
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
@@ -24,7 +23,10 @@ import (
 // UpsertData inserts or updates the given asset data. If the data with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
 func UpsertData(data api.Data) error {
-	_, err := client.NewClient().DataApi.PutData(context.Background()).Data(data).Execute()
+	_, err := client.NewClient().DataApi.
+		PutData(client.AuthenticationContext()).
+		Data(data).
+		Execute()
 	return err
 }
 

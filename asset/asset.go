@@ -16,7 +16,6 @@
 package asset
 
 import (
-	"context"
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
@@ -26,7 +25,7 @@ import (
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(assetType api.AssetType) error {
 	_, _, err := client.NewClient().AssetTypesApi.
-		PutAssetType(context.Background()).
+		PutAssetType(client.AuthenticationContext()).
 		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
 		AssetType(assetType).
 		Execute()
@@ -35,19 +34,26 @@ func UpsertAssetType(assetType api.AssetType) error {
 
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
-	asset, _, err := client.NewClient().AssetsApi.GetAssetById(context.Background(), assetId).Execute()
+	asset, _, err := client.NewClient().AssetsApi.
+		GetAssetById(client.AuthenticationContext(), assetId).
+		Execute()
 	return asset != nil, err
 }
 
 // UpsertAsset insert or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
-	upsertedAsset, _, err := client.NewClient().AssetsApi.PutAsset(context.Background()).Asset(asset).Execute()
+	upsertedAsset, _, err := client.NewClient().AssetsApi.
+		PutAsset(client.AuthenticationContext()).
+		Asset(asset).Execute()
 	return upsertedAsset.Id.Get(), err
 }
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
 func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
-	_, err := client.NewClient().AssetTypesApi.PutAssetTypeAttribute(context.Background(), *attribute.AssetTypeName.Get()).AssetTypeAttribute(attribute).Execute()
+	_, err := client.NewClient().AssetTypesApi.
+		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
+		AssetTypeAttribute(attribute).
+		Execute()
 	return err
 }
 

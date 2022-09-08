@@ -16,6 +16,7 @@
 package client
 
 import (
+	"context"
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
@@ -28,4 +29,11 @@ func NewClient() *api.APIClient {
 	cfg := api.NewConfiguration()
 	cfg.Servers = api.ServerConfigurations{{URL: ApiEndpointString()}}
 	return api.NewAPIClient(cfg)
+}
+
+func AuthenticationContext() context.Context {
+	apiKeys := map[string]api.APIKey{
+		"ApiKeyAuth": {Key: common.Getenv("API_TOKEN", "not defined")},
+	}
+	return context.WithValue(context.Background(), api.ContextAPIKeys, apiKeys)
 }
