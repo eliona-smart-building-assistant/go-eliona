@@ -22,7 +22,7 @@ import (
 )
 
 func ApiEndpointString() string {
-	return common.Getenv("API_ENDPOINT", "http://eliona-api:8080/v2")
+	return common.Getenv("API_ENDPOINT", "http://api-v2:3000/v2")
 }
 
 func NewClient() *api.APIClient {
