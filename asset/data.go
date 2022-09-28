@@ -16,7 +16,7 @@
 package asset
 
 import (
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
 
