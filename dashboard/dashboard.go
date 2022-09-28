@@ -26,6 +26,7 @@ import (
 func UpsertWidgetType(widgetType api.WidgetType) error {
 	_, err := client.NewClient().WidgetsTypesApi.
 		PutWidgetType(client.AuthenticationContext()).
+		Expansions([]string{"WidgetType.elements"}).
 		WidgetType(widgetType).
 		Execute()
 	return err
