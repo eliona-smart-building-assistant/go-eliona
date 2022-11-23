@@ -50,7 +50,7 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
 func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
-	_, err := client.NewClient().AssetTypesApi.
+	_, _, err := client.NewClient().AssetTypesApi.
 		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
 		AssetTypeAttribute(attribute).
 		Execute()
