@@ -40,12 +40,15 @@ func ExistAsset(assetId int32) (bool, error) {
 	return asset != nil, err
 }
 
-// UpsertAsset insert or updates an asset and returns the id
+// UpsertAsset inserts or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
 	upsertedAsset, _, err := client.NewClient().AssetsApi.
 		PutAsset(client.AuthenticationContext()).
 		Asset(asset).Execute()
-	return upsertedAsset.Id.Get(), err
+	if err != nil {
+		return nil, err
+	}
+	return upsertedAsset.Id.Get(), nil
 }
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
