@@ -1,6 +1,6 @@
-# go-eliona #
+#Go Eliona
 
-go-eliona is a Go library for accessing resources within an [eliona](https://www.eliona.io/) environment.
+Go Eliona is a part of the Eliona App SDK. It provides a Go library for accessing resources within an ELiona environment.
 
 ## Installation ##
 
