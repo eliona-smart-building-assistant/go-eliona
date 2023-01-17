@@ -1,6 +1,6 @@
 # Go Eliona
 
-Go Eliona is a part of the Eliona App SDK. It provides a Go library for accessing resources within an ELiona environment.
+Go Eliona is a part of the Eliona App SDK. It provides a Go library for accessing resources within an Eliona environment.
 
 ## Installation ##
 
