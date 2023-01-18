@@ -16,8 +16,7 @@
 package dashboard
 
 import (
-	"context"
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
@@ -25,7 +24,11 @@ import (
 
 // UpsertWidgetType insert or updates an asset and returns the id
 func UpsertWidgetType(widgetType api.WidgetType) error {
-	_, err := client.NewClient().DashboardsApi.PutWidgetType(context.Background()).WidgetType(widgetType).Execute()
+	_, _, err := client.NewClient().WidgetsTypesApi.
+		PutWidgetType(client.AuthenticationContext()).
+		Expansions([]string{"WidgetType.elements"}).
+		WidgetType(widgetType).
+		Execute()
 	return err
 }
 

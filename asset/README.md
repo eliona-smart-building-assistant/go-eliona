@@ -1,5 +1,5 @@
 # go-eliona Asset DB
-The go-eliona Assets package provides functions and data structures to handle assets and heaps. This package uses the [Eliona API](https://github.com/eliona-smart-building-assistant/eliona-api) to access Eliona.
+The go-eliona Assets package provides functions and data structures to handle assets and data. This package uses the [Eliona API](https://github.com/eliona-smart-building-assistant/eliona-api) to access Eliona.
 
 ## Installation
 To use the assets package you must import the package.
@@ -25,9 +25,9 @@ You can create new assets types and attributes or change existing ones. For exam
 _ = asset.UpsertAssetType(api.AssetType{Name: "weather_location", Custom: true, Vendor: "ITEC AG", Translation: api.Translation{De: "Wetterstation", En: "Weather location"}})
 ```
 
-### Write a heap
+### Write asset data
 
-For example, you can insert or update a heap for temperatures of type `Temperature`. To do this, you can use the defined `Heap` data structure with data field.
+For example, you can insert or update asset data for temperatures of type `Temperature`. To do this, you can use the defined `Data` data structure with data field.
 
 ```go
 type Temperature struct {
@@ -36,10 +36,10 @@ type Temperature struct {
 }
 ```
 
-The following code uses the `UpsertHeap()` function and inserts a heap for
+The following code uses the `UpsertData()` function and inserts a data for
 asset with id `2` and  the `info` subtype. If already exists, the
-data and timestamp are updated. The heap has 'now' as timestamp and a temperature with `23` as value and `Celsius` as unit. This would be written as `{"Unit": "Celsius", "Value": 30}` to heap data.
+data and timestamp are updated. The data has 'now' as timestamp and a temperature with `23` as value and `Celsius` as unit. This would be written as `{"Unit": "Celsius", "Value": 30}` to data payload.
 
 ```go
-_ = asset.UpsertHeap(api.Heap{2, api.INFO, time.Time{}, common.StructToMap(Temperature{35, "Celsius"})})
+_ = asset.UpsertData(api.Data{2, api.INFO, time.Time{}, common.StructToMap(Temperature{35, "Celsius"})})
 ```

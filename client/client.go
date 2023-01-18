@@ -16,16 +16,24 @@
 package client
 
 import (
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	"context"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
 func ApiEndpointString() string {
-	return common.Getenv("API_ENDPOINT", "http://eliona-api:8080/v2")
+	return common.Getenv("API_ENDPOINT", "http://api-v2:3000/v2")
 }
 
 func NewClient() *api.APIClient {
 	cfg := api.NewConfiguration()
 	cfg.Servers = api.ServerConfigurations{{URL: ApiEndpointString()}}
 	return api.NewAPIClient(cfg)
+}
+
+func AuthenticationContext() context.Context {
+	apiKeys := map[string]api.APIKey{
+		"ApiKeyAuth": {Key: common.Getenv("API_TOKEN", "not defined")},
+	}
+	return context.WithValue(context.Background(), api.ContextAPIKeys, apiKeys)
 }

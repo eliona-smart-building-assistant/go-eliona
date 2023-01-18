@@ -16,14 +16,22 @@
 package asset
 
 import (
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	"testing"
+
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestUnMarshal(t *testing.T) {
 	assetType, err := common.UnmarshalFile[api.AssetType]("test-asset-type.json")
 	assert.Nil(t, err)
 	assert.Equal(t, "trash", *assetType.Icon.Get())
+}
+
+func TestUpsertAssetDoesNotPanic(t *testing.T) {
+	// Asset cannot be empty.
+	assetID, err := UpsertAsset(api.Asset{})
+	assert.NotNil(t, err)
+	assert.Nil(t, assetID)
 }

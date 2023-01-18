@@ -16,26 +16,28 @@
 package asset
 
 import (
-	"context"
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
 
-// UpsertHeap inserts or updates the given heap. If the heap with the specified subtype does not exists, it will be created.
+// UpsertData inserts or updates the given asset data. If the data with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
-func UpsertHeap(heap api.Heap) error {
-	_, err := client.NewClient().HeapsApi.PutHeap(context.Background()).Heap(heap).Execute()
+func UpsertData(data api.Data) error {
+	_, err := client.NewClient().DataApi.
+		PutData(client.AuthenticationContext()).
+		Data(data).
+		Execute()
 	return err
 }
 
-// UpsertHeapIfAssetExists upsert the heap if the eliona id exists. Otherwise, the upsert is ignored
-func UpsertHeapIfAssetExists[T any](heap api.Heap) error {
-	exists, err := ExistAsset(heap.AssetId)
+// UpsertDataIfAssetExists upsert the data if the eliona id exists. Otherwise, the upsert is ignored
+func UpsertDataIfAssetExists[T any](data api.Data) error {
+	exists, err := ExistAsset(data.AssetId)
 	if err != nil {
 		return err
 	}
 	if exists {
-		return UpsertHeap(heap)
+		return UpsertData(data)
 	}
 	return nil
 }
