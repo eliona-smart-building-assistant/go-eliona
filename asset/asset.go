@@ -16,6 +16,8 @@
 package asset
 
 import (
+	"fmt"
+
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
@@ -72,7 +74,7 @@ func InitAssetTypeFile(path string) func(db.Connection) error {
 	return func(db.Connection) error {
 		assetType, err := common.UnmarshalFile[api.AssetType](path)
 		if err != nil {
-			return err
+			return fmt.Errorf("unmarshalling file %s: %v", path, err)
 		}
 		return UpsertAssetType(assetType)
 	}
