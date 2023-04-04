@@ -17,6 +17,7 @@ package asset
 
 import (
 	"fmt"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
@@ -31,6 +32,7 @@ func UpsertAssetType(assetType api.AssetType) error {
 		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
 		AssetType(assetType).
 		Execute()
+	tools.LogError(err)
 	return err
 }
 
@@ -39,6 +41,7 @@ func ExistAsset(assetId int32) (bool, error) {
 	asset, _, err := client.NewClient().AssetsApi.
 		GetAssetById(client.AuthenticationContext(), assetId).
 		Execute()
+	tools.LogError(err)
 	return asset != nil, err
 }
 
@@ -47,6 +50,7 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 	upsertedAsset, _, err := client.NewClient().AssetsApi.
 		PutAsset(client.AuthenticationContext()).
 		Asset(asset).Execute()
+	tools.LogError(err)
 	if err != nil {
 		return nil, err
 	}
@@ -59,6 +63,7 @@ func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
 		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
 		AssetTypeAttribute(attribute).
 		Execute()
+	tools.LogError(err)
 	return err
 }
 
