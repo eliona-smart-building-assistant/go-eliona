@@ -17,6 +17,7 @@ package asset
 
 import (
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 )
 
@@ -27,6 +28,7 @@ func UpsertData(data api.Data) error {
 		PutData(client.AuthenticationContext()).
 		Data(data).
 		Execute()
+	tools.LogError(err)
 	return err
 }
 

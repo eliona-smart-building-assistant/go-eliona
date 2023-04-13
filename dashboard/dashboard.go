@@ -17,6 +17,7 @@ package dashboard
 
 import (
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
@@ -29,6 +30,7 @@ func UpsertWidgetType(widgetType api.WidgetType) error {
 		Expansions([]string{"WidgetType.elements"}).
 		WidgetType(widgetType).
 		Execute()
+	tools.LogError(err)
 	return err
 }
 

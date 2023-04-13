@@ -17,6 +17,7 @@ package app
 
 import (
 	"context"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
@@ -76,6 +77,7 @@ func appRegistered(appName string) bool {
 	app, _, err := client.NewClient().AppsApi.
 		GetAppByName(client.AuthenticationContext(), appName).
 		Execute()
+	tools.LogError(err)
 	if err != nil || !app.Registered.IsSet() {
 		return false
 	}
@@ -88,6 +90,7 @@ func registerApp(appName string) error {
 		PatchAppByName(client.AuthenticationContext(), appName).
 		Registered(true).
 		Execute()
+	tools.LogError(err)
 	return err
 }
 
@@ -129,6 +132,7 @@ func patchApplied(appName string, patchName string) bool {
 	patch, _, err := client.NewClient().AppsApi.
 		GetPatchByName(client.AuthenticationContext(), appName, patchName).
 		Execute()
+	tools.LogError(err)
 	if err != nil || !patch.Applied.IsSet() {
 		return false
 	}
@@ -141,5 +145,6 @@ func applyPatch(appName string, patchName string) error {
 		PatchPatchByName(client.AuthenticationContext(), appName, patchName).
 		Apply(true).
 		Execute()
+	tools.LogError(err)
 	return err
 }
