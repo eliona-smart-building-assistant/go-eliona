@@ -84,3 +84,12 @@ func InitAssetTypeFile(path string) func(db.Connection) error {
 		return UpsertAssetType(assetType)
 	}
 }
+
+type SubType string
+
+const (
+	Status SubType = "status"
+	Info   SubType = "info"
+	Input  SubType = "input"
+	Output SubType = "output"
+)
