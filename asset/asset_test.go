@@ -16,6 +16,7 @@
 package asset
 
 import (
+	"fmt"
 	"testing"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
@@ -34,4 +35,19 @@ func TestUpsertAssetDoesNotPanic(t *testing.T) {
 	assetID, err := UpsertAsset(api.Asset{})
 	assert.NotNil(t, err)
 	assert.Nil(t, assetID)
+}
+
+func TestErrorLogging(t *testing.T) {
+	t.Setenv("API_ENDPOINT", "https://apps.k8s.eliona.io/api/v2")
+	t.Setenv("API_TOKEN", "A#w&c04nyGkR$REal#W*Km%Zrgx!U@1C")
+	a := api.Asset{
+		ProjectId:             "99",
+		GlobalAssetIdentifier: "fsdjkjbkfdsbhjkdsfajkhlb",
+		Name:                  *api.NewNullableString(common.Ptr("testapicha")),
+		AssetType:             "nonexistent",
+		Description:           *api.NewNullableString(common.Ptr("d.description")),
+	}
+	if _, err := UpsertAsset(a); err != nil {
+		fmt.Printf("upserting asset %+v into Eliona: %v", a, err)
+	}
 }
