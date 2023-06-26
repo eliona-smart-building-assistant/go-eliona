@@ -37,7 +37,7 @@ func UpsertData(data api.Data) error {
 }
 
 // UpsertDataIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
-func UpsertDataIfAssetExists[T any](data api.Data) error {
+func UpsertDataIfAssetExists(data api.Data) error {
 	exists, err := ExistAsset(data.AssetId)
 	if err != nil {
 		return err
