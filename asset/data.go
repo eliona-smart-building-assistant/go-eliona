@@ -16,6 +16,10 @@
 package asset
 
 import (
+	"fmt"
+	"reflect"
+	"strings"
+
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
@@ -32,7 +36,7 @@ func UpsertData(data api.Data) error {
 	return err
 }
 
-// UpsertDataIfAssetExists upsert the data if the eliona id exists. Otherwise, the upsert is ignored
+// UpsertDataIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
 func UpsertDataIfAssetExists[T any](data api.Data) error {
 	exists, err := ExistAsset(data.AssetId)
 	if err != nil {
@@ -42,4 +46,65 @@ func UpsertDataIfAssetExists[T any](data api.Data) error {
 		return UpsertData(data)
 	}
 	return nil
+}
+
+type Data struct {
+	AssetId   int32
+	Timestamp api.NullableTime
+	Data      any
+}
+
+// UpsertAssetDataIfAssetExists upserts the data in any struct having `eliona` field tags.
+// If the eliona ID does not exist, the upsert is ignored.
+func UpsertAssetDataIfAssetExists(data Data) error {
+	a, err := getAsset(data.AssetId)
+	if err != nil {
+		return fmt.Errorf("getting asset id %v: %v", data.AssetId, err)
+	}
+	if a == nil {
+		return nil
+	}
+	asset := *a
+
+	subtypes := splitBySubtype(data)
+	for subtype, subData := range subtypes {
+		UpsertData(api.Data{
+			AssetId:       data.AssetId,
+			Subtype:       subtype,
+			Timestamp:     data.Timestamp,
+			Data:          subData,
+			AssetTypeName: *api.NewNullableString(&asset.AssetType),
+		})
+	}
+
+	return nil
+}
+
+func splitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
+	value := reflect.ValueOf(data)
+	valueType := reflect.TypeOf(data)
+
+	result := make(map[api.DataSubtype]map[string]interface{})
+
+	for i := 0; i < valueType.NumField(); i++ {
+		field := valueType.Field(i)
+		fieldValue := value.Field(i).Interface()
+
+		elionaTag := field.Tag.Get("eliona")
+		// Omit the attribute properties
+		attributeName := strings.Split(elionaTag, ",")[0]
+
+		subtype := api.DataSubtype(field.Tag.Get("subtype"))
+
+		if subtype == api.SUBTYPE_OUTPUT {
+			continue
+		}
+
+		if _, ok := result[subtype]; !ok {
+			result[subtype] = make(map[string]interface{})
+		}
+		result[subtype][attributeName] = fieldValue
+	}
+
+	return result
 }

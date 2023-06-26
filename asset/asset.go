@@ -17,6 +17,7 @@ package asset
 
 import (
 	"fmt"
+
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
@@ -36,11 +37,16 @@ func UpsertAssetType(assetType api.AssetType) error {
 	return err
 }
 
-// ExistAsset returns true, if the given asset id exists in eliona
-func ExistAsset(assetId int32) (bool, error) {
+func getAsset(assetId int32) (*api.Asset, error) {
 	asset, _, err := client.NewClient().AssetsApi.
 		GetAssetById(client.AuthenticationContext(), assetId).
 		Execute()
+	return asset, err
+}
+
+// ExistAsset returns true, if the given asset id exists in eliona
+func ExistAsset(assetId int32) (bool, error) {
+	asset, err := getAsset(assetId)
 	tools.LogError(err)
 	return asset != nil, err
 }
