@@ -18,7 +18,6 @@ package asset
 import (
 	"fmt"
 	"reflect"
-	"strings"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
@@ -90,20 +89,20 @@ func splitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 		field := valueType.Field(i)
 		fieldValue := value.Field(i).Interface()
 
-		elionaTag := field.Tag.Get("eliona")
-		// Omit the attribute properties
-		attributeName := strings.Split(elionaTag, ",")[0]
-
-		subtype := api.DataSubtype(field.Tag.Get("subtype"))
-
-		if subtype == api.SUBTYPE_OUTPUT {
+		tag, ok := ParseElionaTag(field)
+		if !ok {
+			// Skip fields without tag.
 			continue
 		}
 
-		if _, ok := result[subtype]; !ok {
-			result[subtype] = make(map[string]interface{})
+		if tag.Subtype == api.SUBTYPE_OUTPUT {
+			continue
 		}
-		result[subtype][attributeName] = fieldValue
+
+		if _, ok := result[tag.Subtype]; !ok {
+			result[tag.Subtype] = make(map[string]interface{})
+		}
+		result[tag.Subtype][tag.AttributeName] = fieldValue
 	}
 
 	return result
