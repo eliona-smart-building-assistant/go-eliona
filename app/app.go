@@ -132,7 +132,6 @@ func patchApplied(appName string, patchName string) bool {
 	patch, _, err := client.NewClient().AppsApi.
 		GetPatchByName(client.AuthenticationContext(), appName, patchName).
 		Execute()
-	tools.LogError(err)
 	if err != nil || !patch.Applied.IsSet() {
 		return false
 	}
