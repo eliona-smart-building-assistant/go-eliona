@@ -65,15 +65,17 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 	}
 	asset := *a
 
-	subtypes := splitBySubtype(data)
+	subtypes := splitBySubtype(data.Data)
 	for subtype, subData := range subtypes {
-		UpsertData(api.Data{
+		if err := UpsertData(api.Data{
 			AssetId:       data.AssetId,
 			Subtype:       subtype,
 			Timestamp:     data.Timestamp,
 			Data:          subData,
 			AssetTypeName: *api.NewNullableString(&asset.AssetType),
-		})
+		}); err != nil {
+			return fmt.Errorf("upserting data for subtype %s: %v", subtype, err)
+		}
 	}
 
 	return nil
