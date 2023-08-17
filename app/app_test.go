@@ -21,7 +21,6 @@ import (
 )
 
 func TestAppName(t *testing.T) {
-	assert.Equal(t, "", AppName())
-	t.Setenv("APPNAME", "foobar")
-	assert.Equal(t, "foobar", AppName())
+	assert.Equal(t, "", appNamFromFile("not_existing_file.json"))
+	assert.Equal(t, "foobar", appNamFromFile("testdata/metadata.json"))
 }

@@ -17,17 +17,69 @@ package app
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
-	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 	"github.com/eliona-smart-building-assistant/go-utils/log"
+	"io"
+	"os"
 )
 
+type Metadata struct {
+	Name                   string            `json:"name"`
+	ElionaMinVersion       string            `json:"elionaMinVersion"`
+	DisplayName            map[string]string `json:"displayName"`
+	Description            map[string]string `json:"description"`
+	DashboardTemplateNames []string          `json:"dashboardTemplateNames"`
+	ApiUrl                 string            `json:"apiUrl"`
+	ApiSpecificationPath   string            `json:"apiSpecificationPath"`
+	DocumentationUrl       string            `json:"documentationUrl"`
+	UseEnvironment         []string          `json:"useEnvironment"`
+}
+
 // AppName returns the name of the app uses the library. The app name is defined in the
-// environment variable APPNAME. If not defined, the AppName returns nil.
+// metadata.json file. If not defined, this function returns an empty name
 func AppName() string {
-	return common.Getenv("APPNAME", "")
+	return appNamFromFile("metadata.json")
+}
+
+func appNamFromFile(filename string) string {
+	metadata, _, err := getMetadataFromFile(filename)
+	if err != nil {
+		log.Warn("Apps", "Cannot determine app name from %s file: %v", filename, err)
+		return ""
+	}
+	if len(metadata.Name) == 0 {
+		log.Warn("Apps", "File %s contains no app name", filename)
+	}
+	return metadata.Name
+}
+
+// GetMetadata returns the metadata from the file metadata.json
+func GetMetadata() (Metadata, []byte, error) {
+	return getMetadataFromFile("metadata.json")
+}
+
+func getMetadataFromFile(filename string) (Metadata, []byte, error) {
+	file, err := os.Open(filename)
+	if err != nil {
+		return Metadata{}, nil, fmt.Errorf("failed to open %s: %w", filename, err)
+	}
+	defer file.Close()
+
+	data, err := io.ReadAll(file)
+	if err != nil {
+		return Metadata{}, data, fmt.Errorf("fails reading %s: %s", filename, err)
+	}
+
+	var metadata Metadata
+	if err := json.Unmarshal(data, &metadata); err != nil {
+		return Metadata{}, data, fmt.Errorf("failed unmarhalling %s: %w", filename, err)
+	}
+
+	return metadata, data, nil
 }
 
 // The ExecSqlFile returns a function which executes the given sql file. This method can be used
