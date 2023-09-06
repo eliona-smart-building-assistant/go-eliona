@@ -89,6 +89,11 @@ func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 
 	for i := 0; i < valueType.NumField(); i++ {
 		field := valueType.Field(i)
+
+		if field.PkgPath != "" {
+			// Skip unexported fields.
+			continue
+		}
 		fieldValue := value.Field(i).Interface()
 
 		tag, ok := ParseElionaTag(field)
