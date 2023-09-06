@@ -25,7 +25,7 @@ import (
 
 // UpsertWidgetType insert or updates an asset and returns the id
 func UpsertWidgetType(widgetType api.WidgetType) error {
-	_, _, err := client.NewClient().WidgetsTypesApi.
+	_, _, err := client.NewClient().WidgetsTypesAPI.
 		PutWidgetType(client.AuthenticationContext()).
 		Expansions([]string{"WidgetType.elements"}).
 		WidgetType(widgetType).

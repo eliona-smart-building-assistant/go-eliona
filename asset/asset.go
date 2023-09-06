@@ -28,7 +28,7 @@ import (
 
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(assetType api.AssetType) error {
-	_, _, err := client.NewClient().AssetTypesApi.
+	_, _, err := client.NewClient().AssetTypesAPI.
 		PutAssetType(client.AuthenticationContext()).
 		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
 		AssetType(assetType).
@@ -38,7 +38,7 @@ func UpsertAssetType(assetType api.AssetType) error {
 }
 
 func getAsset(assetId int32) (*api.Asset, error) {
-	asset, _, err := client.NewClient().AssetsApi.
+	asset, _, err := client.NewClient().AssetsAPI.
 		GetAssetById(client.AuthenticationContext(), assetId).
 		Execute()
 	return asset, err
@@ -53,7 +53,7 @@ func ExistAsset(assetId int32) (bool, error) {
 
 // UpsertAsset inserts or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
-	upsertedAsset, _, err := client.NewClient().AssetsApi.
+	upsertedAsset, _, err := client.NewClient().AssetsAPI.
 		PutAsset(client.AuthenticationContext()).
 		Asset(asset).Execute()
 	tools.LogError(err)
@@ -65,7 +65,7 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
 func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
-	_, _, err := client.NewClient().AssetTypesApi.
+	_, _, err := client.NewClient().AssetTypesAPI.
 		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
 		AssetTypeAttribute(attribute).
 		Execute()
