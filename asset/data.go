@@ -65,7 +65,7 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 	}
 	asset := *a
 
-	subtypes := splitBySubtype(data.Data)
+	subtypes := SplitBySubtype(data.Data)
 	for subtype, subData := range subtypes {
 		if err := UpsertData(api.Data{
 			AssetId:       data.AssetId,
@@ -81,7 +81,7 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 	return nil
 }
 
-func splitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
+func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 	value := reflect.ValueOf(data)
 	valueType := reflect.TypeOf(data)
 
