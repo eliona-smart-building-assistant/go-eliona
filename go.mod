@@ -3,7 +3,7 @@ module github.com/eliona-smart-building-assistant/go-eliona
 go 1.20
 
 require (
-	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.4.20
+	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.5.3-2
 	github.com/eliona-smart-building-assistant/go-utils v1.0.29
 	github.com/stretchr/testify v1.8.1
 )

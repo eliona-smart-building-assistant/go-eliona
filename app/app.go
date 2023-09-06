@@ -126,7 +126,7 @@ func Init(connection db.Connection, appName string, initFunctions ...func(connec
 
 // appRegistered checks if the app is already initialized.
 func appRegistered(appName string) bool {
-	app, _, err := client.NewClient().AppsApi.
+	app, _, err := client.NewClient().AppsAPI.
 		GetAppByName(client.AuthenticationContext(), appName).
 		Execute()
 	tools.LogError(err)
@@ -138,7 +138,7 @@ func appRegistered(appName string) bool {
 
 // registerApp marks that the app is now initialized and installed.
 func registerApp(appName string) error {
-	_, err := client.NewClient().AppsApi.
+	_, err := client.NewClient().AppsAPI.
 		PatchAppByName(client.AuthenticationContext(), appName).
 		Registered(true).
 		Execute()
@@ -181,7 +181,7 @@ func Patch(connection db.Connection, appName string, patchName string, patchFunc
 
 // patchApplied checks if the patch is already applied.
 func patchApplied(appName string, patchName string) bool {
-	patch, _, err := client.NewClient().AppsApi.
+	patch, _, err := client.NewClient().AppsAPI.
 		GetPatchByName(client.AuthenticationContext(), appName, patchName).
 		Execute()
 	if err != nil || !patch.Applied.IsSet() {
@@ -192,7 +192,7 @@ func patchApplied(appName string, patchName string) bool {
 
 // applyPatch marks that the patch is now applied.
 func applyPatch(appName string, patchName string) error {
-	_, err := client.NewClient().AppsApi.
+	_, err := client.NewClient().AppsAPI.
 		PatchPatchByName(client.AuthenticationContext(), appName, patchName).
 		Apply(true).
 		Execute()
