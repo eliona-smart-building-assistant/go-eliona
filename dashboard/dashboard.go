@@ -16,11 +16,13 @@
 package dashboard
 
 import (
+	"fmt"
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
+	"path/filepath"
 )
 
 // UpsertWidgetType insert or updates an asset and returns the id
@@ -34,13 +36,33 @@ func UpsertWidgetType(widgetType api.WidgetType) error {
 	return err
 }
 
+func initWidgetTypeFile(path string) error {
+	widgetType, err := common.UnmarshalFile[api.WidgetType](path)
+	if err != nil {
+		return fmt.Errorf("unmarshalling file %s: %v", path, err)
+	}
+	return UpsertWidgetType(widgetType)
+}
+
 // InitWidgetTypeFile inserts or updates the type build from the content of the given file.
 func InitWidgetTypeFile(path string) func(db.Connection) error {
 	return func(db.Connection) error {
-		widgetType, err := common.UnmarshalFile[api.WidgetType](path)
+		return initWidgetTypeFile(path)
+	}
+}
+
+func InitWidgetTypeFiles(pattern string) func(db.Connection) error {
+	return func(db.Connection) error {
+		paths, err := filepath.Glob(pattern)
 		if err != nil {
-			return err
+			return fmt.Errorf("glob file pattern %s: %v", pattern, err)
 		}
-		return UpsertWidgetType(widgetType)
+		for _, path := range paths {
+			err := initWidgetTypeFile(path)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 }
