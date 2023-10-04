@@ -17,6 +17,7 @@ package asset
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 
@@ -80,14 +81,34 @@ func InitAssetType(assetType api.AssetType) func(db.Connection) error {
 	}
 }
 
+func initAssetTypeFile(path string) error {
+	assetType, err := common.UnmarshalFile[api.AssetType](path)
+	if err != nil {
+		return fmt.Errorf("unmarshalling file %s: %v", path, err)
+	}
+	return UpsertAssetType(assetType)
+}
+
 // InitAssetTypeFile inserts or updates the asset type build from the content of the given file.
 func InitAssetTypeFile(path string) func(db.Connection) error {
 	return func(db.Connection) error {
-		assetType, err := common.UnmarshalFile[api.AssetType](path)
+		return initAssetTypeFile(path)
+	}
+}
+
+func InitAssetTypeFiles(pattern string) func(db.Connection) error {
+	return func(db.Connection) error {
+		paths, err := filepath.Glob(pattern)
 		if err != nil {
-			return fmt.Errorf("unmarshalling file %s: %v", path, err)
+			return fmt.Errorf("glob file pattern %s: %v", pattern, err)
 		}
-		return UpsertAssetType(assetType)
+		for _, path := range paths {
+			err := initAssetTypeFile(path)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
 	}
 }
 
