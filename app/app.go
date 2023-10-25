@@ -96,8 +96,10 @@ func ExecSqlFile(path string) func(connection db.Connection) error {
 // transactions. For this you must use the connection that is passed to the function parameter.
 func Init(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
 	if appRegistered(appName) {
-		log.Debug("Apps", "App %s is already initialized. Skip init.", appName)
+		log.Info("Apps", "Skip init because app %s is already initialized", appName)
 		return
+	} else {
+		log.Info("Apps", "Start initializing and registering the app %s", appName)
 	}
 
 	transaction, err := db.Begin(connection)
@@ -122,6 +124,7 @@ func Init(connection db.Connection, appName string, initFunctions ...func(connec
 		log.Fatal("Apps", "Cannot register app %s as initialized: %v", appName, err)
 	}
 
+	log.Info("Apps", "Finished initializing and registering of the app %s successfully", appName)
 }
 
 // appRegistered checks if the app is already initialized.
@@ -152,8 +155,10 @@ func registerApp(appName string) error {
 // transactions. For this you must use the connection that is passed to the function parameter.
 func Patch(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
 	if patchApplied(appName, patchName) {
-		log.Debug("Apps", "App %s patch %s is already installed. Skip patching.", appName, patchName)
+		log.Info("Apps", "Skip patching because app %s is already patched for %s", appName, patchName)
 		return
+	} else {
+		log.Info("Apps", "Start patching the app %s for %s", appName, patchName)
 	}
 
 	transaction, err := db.Begin(connection)
@@ -177,6 +182,8 @@ func Patch(connection db.Connection, appName string, patchName string, patchFunc
 	if err != nil {
 		log.Fatal("Apps", "Cannot register patch %s for app %s: %v", patchName, appName, err)
 	}
+
+	log.Info("Apps", "Finished patching the app %s for %s successfully", appName, patchName)
 }
 
 // patchApplied checks if the patch is already applied.
