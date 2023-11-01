@@ -17,12 +17,13 @@ package dashboard
 
 import (
 	"fmt"
+	"path/filepath"
+
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
-	"path/filepath"
 )
 
 // UpsertWidgetType insert or updates an asset and returns the id
@@ -60,7 +61,7 @@ func InitWidgetTypeFiles(pattern string) func(db.Connection) error {
 		for _, path := range paths {
 			err := initWidgetTypeFile(path)
 			if err != nil {
-				return err
+				return fmt.Errorf("initializing widget type %s: %v", path, err)
 			}
 		}
 		return nil

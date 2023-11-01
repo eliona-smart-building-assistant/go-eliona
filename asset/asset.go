@@ -105,7 +105,7 @@ func InitAssetTypeFiles(pattern string) func(db.Connection) error {
 		for _, path := range paths {
 			err := initAssetTypeFile(path)
 			if err != nil {
-				return err
+				return fmt.Errorf("initializing asset type %s: %v", path, err)
 			}
 		}
 		return nil
