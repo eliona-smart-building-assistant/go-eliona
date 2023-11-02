@@ -4,8 +4,8 @@ go 1.20
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.5.3-2
-	github.com/eliona-smart-building-assistant/go-utils v1.0.29
+	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.5.4
+	github.com/eliona-smart-building-assistant/go-utils v1.0.44
 	github.com/stretchr/testify v1.8.1
 )
 
@@ -13,7 +13,7 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/friendsofgo/errors v0.9.2 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
-	github.com/jackc/pgconn v1.14.0 // indirect
+	github.com/jackc/pgconn v1.14.1 // indirect
 	github.com/jackc/pgio v1.0.0 // indirect
 	github.com/jackc/pgpassfile v1.0.0 // indirect
 	github.com/jackc/pgproto3/v2 v2.3.2 // indirect
@@ -25,10 +25,10 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/cast v1.5.1 // indirect
 	github.com/volatiletech/inflect v0.0.1 // indirect
-	github.com/volatiletech/sqlboiler/v4 v4.14.2 // indirect
-	github.com/volatiletech/strmangle v0.0.4 // indirect
-	golang.org/x/crypto v0.10.0 // indirect
-	golang.org/x/text v0.10.0 // indirect
-	golang.org/x/xerrors v0.0.0-20220907171357-04be3eba64a2 // indirect
+	github.com/volatiletech/sqlboiler/v4 v4.15.0 // indirect
+	github.com/volatiletech/strmangle v0.0.5 // indirect
+	golang.org/x/crypto v0.14.0 // indirect
+	golang.org/x/text v0.13.0 // indirect
+	golang.org/x/xerrors v0.0.0-20231012003039-104605ab7028 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
