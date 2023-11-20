@@ -104,10 +104,6 @@ func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 			continue
 		}
 
-		if tag.Subtype == api.SUBTYPE_OUTPUT {
-			continue
-		}
-
 		if _, ok := result[tag.Subtype]; !ok {
 			result[tag.Subtype] = make(map[string]interface{})
 		}
