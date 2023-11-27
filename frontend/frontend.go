@@ -18,12 +18,13 @@ package frontend
 import (
 	"context"
 	"fmt"
-	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"net/http"
 	"strconv"
 	"strings"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/eliona-smart-building-assistant/go-utils/common"
+
+	"github.com/golang-jwt/jwt"
 )
 
 func extractBearerToken(authHeader string) string {

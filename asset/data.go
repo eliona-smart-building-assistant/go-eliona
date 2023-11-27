@@ -48,9 +48,10 @@ func UpsertDataIfAssetExists(data api.Data) error {
 }
 
 type Data struct {
-	AssetId   int32
-	Timestamp api.NullableTime
-	Data      any
+	AssetId         int32
+	Timestamp       api.NullableTime
+	ClientReference string
+	Data            any
 }
 
 // UpsertAssetDataIfAssetExists upserts the data in any struct having `eliona` field tags.
@@ -68,11 +69,12 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 	subtypes := SplitBySubtype(data.Data)
 	for subtype, subData := range subtypes {
 		if err := UpsertData(api.Data{
-			AssetId:       data.AssetId,
-			Subtype:       subtype,
-			Timestamp:     data.Timestamp,
-			Data:          subData,
-			AssetTypeName: *api.NewNullableString(&asset.AssetType),
+			AssetId:         data.AssetId,
+			Subtype:         subtype,
+			Timestamp:       data.Timestamp,
+			Data:            subData,
+			AssetTypeName:   *api.NewNullableString(&asset.AssetType),
+			ClientReference: *api.NewNullableString(&data.ClientReference),
 		}); err != nil {
 			return fmt.Errorf("upserting data for subtype %s: %v", subtype, err)
 		}
@@ -102,7 +104,7 @@ func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 			continue
 		}
 
-		if tag.Subtype == api.SUBTYPE_OUTPUT {
+		if tag.Subtype == "" {
 			continue
 		}
 
