@@ -68,21 +68,21 @@ func ParseEnvironment(r *http.Request) (*Environment, error) {
 
 func parseEnvironment(tokenString *string) (*Environment, error) {
 
-	var env *Environment
+	var env Environment
 	if tokenString == nil {
-		return env, nil
+		return nil, nil
 	}
 
 	// Parse the JWT token without validating its signature
 	token, _, err := new(jwt.Parser).ParseUnverified(*tokenString, jwt.MapClaims{})
 	if err != nil {
-		return env, fmt.Errorf("parsing JWT token: %w", err)
+		return nil, fmt.Errorf("parsing JWT token: %w", err)
 	}
 
 	// Extract claims from the token
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok {
-		return env, fmt.Errorf("invalid claims: %w", err)
+		return nil, fmt.Errorf("invalid claims: %w", err)
 	}
 
 	if projectId, found := claims["proj_id"].(string); found {
@@ -104,7 +104,7 @@ func parseEnvironment(tokenString *string) (*Environment, error) {
 		}
 	}
 
-	return env, nil
+	return &env, nil
 }
 
 type EnvironmentHandler struct {
