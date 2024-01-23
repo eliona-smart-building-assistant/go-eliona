@@ -19,7 +19,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/eliona-smart-building-assistant/go-utils/common"
@@ -52,13 +51,6 @@ func GetBearerTokenString(r *http.Request) (*string, error) {
 	return common.Ptr(token), nil
 }
 
-type Environment struct {
-	ProjectId    *string
-	RoleId       *int32
-	UserId       *int32
-	Entitlements *string
-}
-
 func ParseEnvironment(r *http.Request) (*Environment, error) {
 	token, err := GetBearerTokenString(r)
 	if err != nil {
@@ -67,45 +59,32 @@ func ParseEnvironment(r *http.Request) (*Environment, error) {
 	return parseEnvironment(token)
 }
 
-func parseEnvironment(tokenString *string) (*Environment, error) {
+type Environment struct {
+	Aud          string `json:"aud"`
+	Exp          int    `json:"exp"`
+	Iss          string `json:"iss"`
+	Role         string `json:"role"`
+	CustId       string `json:"cust_id"`
+	ProjId       string `json:"proj_id"`
+	RoleId       string `json:"role_id"`
+	UserId       string `json:"user_id"`
+	Entitlements string `json:"entitlements"`
+	jwt.StandardClaims
+}
 
-	var env Environment
+func parseEnvironment(tokenString *string) (*Environment, error) {
 	if tokenString == nil {
 		return nil, nil
 	}
 
-	// Parse the JWT token without validating its signature
-	token, _, err := new(jwt.Parser).ParseUnverified(*tokenString, jwt.MapClaims{})
-	if err != nil {
-		return nil, fmt.Errorf("parsing JWT token: %w", err)
-	}
+	// Parse the token
+	token, _, err := new(jwt.Parser).ParseUnverified(*tokenString, &Environment{})
 
-	// Extract claims from the token
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
+	if claims, ok := token.Claims.(*Environment); ok {
+		return claims, nil
+	} else {
 		return nil, fmt.Errorf("invalid claims: %w", err)
 	}
-
-	if projectId, found := claims["proj_id"].(string); found {
-		env.ProjectId = common.Ptr(projectId)
-	}
-	if entitlements, found := claims["entitlements"].(string); found {
-		env.Entitlements = common.Ptr(entitlements)
-	}
-	if roleIdString, found := claims["role_id"].(string); found {
-		roleId, err := strconv.ParseInt(roleIdString, 10, 32)
-		if err == nil {
-			env.RoleId = common.Ptr(int32(roleId))
-		}
-	}
-	if userIdString, found := claims["user_id"].(string); found {
-		userId, err := strconv.ParseInt(userIdString, 10, 32)
-		if err == nil {
-			env.RoleId = common.Ptr(int32(userId))
-		}
-	}
-
-	return &env, nil
 }
 
 type EnvironmentHandler struct {
