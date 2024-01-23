@@ -33,3 +33,4 @@ The `API_TOKEN` defines the secret to authenticate the app and access the API.
 - [App](app) functions for apps and patches
 - [Asset](asset) asset and asset type management 
 - [Dashboard](dashboard) functions for dashboards
+- [Frontend](frontend) functions for frontend
