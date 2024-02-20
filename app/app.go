@@ -94,37 +94,51 @@ func ExecSqlFile(path string) func(connection db.Connection) error {
 // This function guarantees that everything will only run once when the app is first launched.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Init(connection db.Connection, appName string, initFunctions ...func(connection db.Connection) error) {
-	if appRegistered(appName) {
-		log.Info("Apps", "Skip init because app %s is already initialized", appName)
+func Init(connection db.Connection, appAndSchemaName string, initFunctions ...func(connection db.Connection) error) {
+	if appRegistered(appAndSchemaName) {
+		log.Info("Apps", "Skip init because app %s is already initialized", appAndSchemaName)
 		return
 	} else {
-		log.Info("Apps", "Start initializing and registering the app %s", appName)
+		log.Info("Apps", "Start initializing and registering the app %s", appAndSchemaName)
 	}
 
 	transaction, err := db.Begin(connection)
 	if err != nil {
-		log.Fatal("Apps", "Cannot start transaction to init app %s: %v", appName, err)
+		log.Fatal("Apps", "Cannot start transaction to init app %s: %v", appAndSchemaName, err)
 	}
 
 	for i, initFunction := range initFunctions {
 		err := initFunction(transaction)
 		if err != nil {
-			log.Fatal("Apps", "Cannot execute function %d to init app %s: %v", i, appName, err)
+			log.Fatal("Apps", "Cannot execute function %d to init app %s: %v", i, appAndSchemaName, err)
 		}
 	}
 
 	err = transaction.Commit(context.Background())
 	if err != nil {
-		log.Fatal("Apps", "Cannot commit init for app %s: %v", appName, err)
+		log.Fatal("Apps", "Cannot commit init for app %s: %v", appAndSchemaName, err)
 	}
 
-	err = registerApp(appName)
+	err = fixPrivileges(connection, appAndSchemaName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot register app %s as initialized: %v", appName, err)
+		log.Fatal("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
-	log.Info("Apps", "Finished initializing and registering of the app %s successfully", appName)
+	err = registerApp(appAndSchemaName)
+	if err != nil {
+		log.Fatal("Apps", "Cannot register app %s as initialized: %v", appAndSchemaName, err)
+	}
+
+	log.Info("Apps", "Finished initializing and registering of the app %s successfully", appAndSchemaName)
+}
+
+func fixPrivileges(connection db.Connection, appAndSchemaName string) error {
+	config := db.GetConnectionConfig(&connection)
+	if config == nil {
+		return fmt.Errorf("cannot determine config for fixprivileges from connection %v", connection)
+	}
+	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivileges('%s','%s')", appAndSchemaName, config.User))
+	return err
 }
 
 // appRegistered checks if the app is already initialized.
@@ -153,37 +167,42 @@ func registerApp(appName string) error {
 // This function guarantees that everything will only run once when the patch is applied.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Patch(connection db.Connection, appName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
-	if patchApplied(appName, patchName) {
-		log.Info("Apps", "Skip patching because app %s is already patched for %s", appName, patchName)
+func Patch(connection db.Connection, appAndSchemaName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
+	if patchApplied(appAndSchemaName, patchName) {
+		log.Info("Apps", "Skip patching because app %s is already patched for %s", appAndSchemaName, patchName)
 		return
 	} else {
-		log.Info("Apps", "Start patching the app %s for %s", appName, patchName)
+		log.Info("Apps", "Start patching the app %s for %s", appAndSchemaName, patchName)
 	}
 
 	transaction, err := db.Begin(connection)
 	if err != nil {
-		log.Fatal("Apps", "Cannot start transaction to patch %s app %s: %v", patchName, appName, err)
+		log.Fatal("Apps", "Cannot start transaction to patch %s app %s: %v", patchName, appAndSchemaName, err)
 	}
 
 	for i, patchFunction := range patchFunctions {
 		err := patchFunction(transaction)
 		if err != nil {
-			log.Fatal("Apps", "Cannot execute function %d to patch %s app %s: %v", i, patchName, appName, err)
+			log.Fatal("Apps", "Cannot execute function %d to patch %s app %s: %v", i, patchName, appAndSchemaName, err)
 		}
 	}
 
 	err = transaction.Commit(context.Background())
 	if err != nil {
-		log.Fatal("Apps", "Cannot commit patch %s for app %s: %v", patchName, appName, err)
+		log.Fatal("Apps", "Cannot commit patch %s for app %s: %v", patchName, appAndSchemaName, err)
 	}
 
-	err = applyPatch(appName, patchName)
+	err = fixPrivileges(connection, appAndSchemaName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot register patch %s for app %s: %v", patchName, appName, err)
+		log.Fatal("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
-	log.Info("Apps", "Finished patching the app %s for %s successfully", appName, patchName)
+	err = applyPatch(appAndSchemaName, patchName)
+	if err != nil {
+		log.Fatal("Apps", "Cannot register patch %s for app %s: %v", patchName, appAndSchemaName, err)
+	}
+
+	log.Info("Apps", "Finished patching the app %s for %s successfully", appAndSchemaName, patchName)
 }
 
 // patchApplied checks if the patch is already applied.
