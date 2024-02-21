@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.6.1
-	github.com/eliona-smart-building-assistant/go-utils v1.0.53
+	github.com/eliona-smart-building-assistant/go-utils v1.0.60
 	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/stretchr/testify v1.8.1
 )

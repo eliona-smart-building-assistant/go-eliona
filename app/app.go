@@ -119,9 +119,9 @@ func Init(connection db.Connection, appAndSchemaName string, initFunctions ...fu
 		log.Fatal("Apps", "Cannot commit init for app %s: %v", appAndSchemaName, err)
 	}
 
-	err = fixPrivileges(connection, appAndSchemaName)
+	err = fixPrivilege(connection, appAndSchemaName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
+		log.Warn("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
 	err = registerApp(appAndSchemaName)
@@ -132,12 +132,12 @@ func Init(connection db.Connection, appAndSchemaName string, initFunctions ...fu
 	log.Info("Apps", "Finished initializing and registering of the app %s successfully", appAndSchemaName)
 }
 
-func fixPrivileges(connection db.Connection, appAndSchemaName string) error {
+func fixPrivilege(connection db.Connection, appAndSchemaName string) error {
 	config := db.GetConnectionConfig(&connection)
 	if config == nil {
 		return fmt.Errorf("cannot determine config for fixprivileges from connection %v", connection)
 	}
-	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivileges('%s','%s')", appAndSchemaName, config.User))
+	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", appAndSchemaName, config.User))
 	return err
 }
 
@@ -192,9 +192,9 @@ func Patch(connection db.Connection, appAndSchemaName string, patchName string, 
 		log.Fatal("Apps", "Cannot commit patch %s for app %s: %v", patchName, appAndSchemaName, err)
 	}
 
-	err = fixPrivileges(connection, appAndSchemaName)
+	err = fixPrivilege(connection, appAndSchemaName)
 	if err != nil {
-		log.Fatal("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
+		log.Warn("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
 	err = applyPatch(appAndSchemaName, patchName)
