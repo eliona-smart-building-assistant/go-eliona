@@ -133,11 +133,7 @@ func Init(connection db.Connection, appAndSchemaName string, initFunctions ...fu
 }
 
 func fixPrivilege(connection db.Connection, appAndSchemaName string) error {
-	config := db.GetConnectionConfig(&connection)
-	if config == nil {
-		return fmt.Errorf("cannot determine config for fixprivileges from connection %v", connection)
-	}
-	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", appAndSchemaName, config.User))
+	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", appAndSchemaName, db.Username()))
 	return err
 }
 
