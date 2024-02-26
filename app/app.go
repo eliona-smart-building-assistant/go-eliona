@@ -143,7 +143,9 @@ func appRegistered(appName string) bool {
 	app, _, err := client.NewClient().AppsAPI.
 		GetAppByName(client.AuthenticationContext(), appName).
 		Execute()
-	tools.LogError(fmt.Errorf("checking if app %v is registered: %w", appName, err))
+	if err != nil {
+		tools.LogError(fmt.Errorf("checking if app %v is registered: %w", appName, err))
+	}
 	if err != nil || !app.Registered.IsSet() {
 		return false
 	}
@@ -156,7 +158,9 @@ func registerApp(appName string) error {
 		PatchAppByName(client.AuthenticationContext(), appName).
 		Registered(true).
 		Execute()
-	tools.LogError(fmt.Errorf("registering app %v: %w", appName, err))
+	if err != nil {
+		tools.LogError(fmt.Errorf("registering app %v: %w", appName, err))
+	}
 	return err
 }
 
@@ -219,6 +223,8 @@ func applyPatch(appName string, patchName string) error {
 		PatchPatchByName(client.AuthenticationContext(), appName, patchName).
 		Apply(true).
 		Execute()
-	tools.LogError(fmt.Errorf("applying patch %v to app %v: %w", patchName, appName, err))
+	if err != nil {
+		tools.LogError(fmt.Errorf("applying patch %v to app %v: %w", patchName, appName, err))
+	}
 	return err
 }

@@ -31,7 +31,9 @@ func UpsertData(data api.Data) error {
 		PutData(client.AuthenticationContext()).
 		Data(data).
 		Execute()
-	tools.LogError(fmt.Errorf("upserting data for asset %v: %w", data.AssetId, err))
+	if err != nil {
+		tools.LogError(fmt.Errorf("upserting data for asset %v: %w", data.AssetId, err))
+	}
 	return err
 }
 
