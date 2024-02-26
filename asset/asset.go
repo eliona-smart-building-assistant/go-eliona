@@ -34,7 +34,7 @@ func UpsertAssetType(assetType api.AssetType) error {
 		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
 		AssetType(assetType).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("upserting asset type %v: %w", assetType.Name, err))
 	return err
 }
 
@@ -48,7 +48,7 @@ func getAsset(assetId int32) (*api.Asset, error) {
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
 	asset, err := getAsset(assetId)
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("checking if asset %v exists: %w", assetId, err))
 	return asset != nil, err
 }
 
@@ -57,7 +57,7 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 	upsertedAsset, _, err := client.NewClient().AssetsAPI.
 		PutAsset(client.AuthenticationContext()).
 		Asset(asset).Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("upserting asset %v: %w", asset.Name, err))
 	if err != nil {
 		return nil, err
 	}
@@ -70,7 +70,7 @@ func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
 		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
 		AssetTypeAttribute(attribute).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("upserting asset type attribute %v: %w", attribute.Name, err))
 	return err
 }
 

@@ -33,7 +33,7 @@ func UpsertWidgetType(widgetType api.WidgetType) error {
 		Expansions([]string{"WidgetType.elements"}).
 		WidgetType(widgetType).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("Upserting widget type %v: %w", widgetType.Name, err))
 	return err
 }
 

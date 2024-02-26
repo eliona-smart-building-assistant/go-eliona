@@ -19,12 +19,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"os"
+
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 	"github.com/eliona-smart-building-assistant/go-utils/log"
-	"io"
-	"os"
 )
 
 type Metadata struct {
@@ -142,7 +143,7 @@ func appRegistered(appName string) bool {
 	app, _, err := client.NewClient().AppsAPI.
 		GetAppByName(client.AuthenticationContext(), appName).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("checking if app %v is registered: %w", appName, err))
 	if err != nil || !app.Registered.IsSet() {
 		return false
 	}
@@ -155,7 +156,7 @@ func registerApp(appName string) error {
 		PatchAppByName(client.AuthenticationContext(), appName).
 		Registered(true).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("registering app %v: %w", appName, err))
 	return err
 }
 
@@ -218,6 +219,6 @@ func applyPatch(appName string, patchName string) error {
 		PatchPatchByName(client.AuthenticationContext(), appName, patchName).
 		Apply(true).
 		Execute()
-	tools.LogError(err)
+	tools.LogError(fmt.Errorf("applying patch %v to app %v: %w", patchName, appName, err))
 	return err
 }
