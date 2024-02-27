@@ -150,6 +150,13 @@ func traverseFunctionalTree(
 }
 
 func upsertData(node Asset, assetId int32, ts *time.Time, clientReference *string) error {
+	a, err := getAsset(assetId)
+	if err != nil {
+		return fmt.Errorf("getting asset id %d: %v", assetId, err)
+	}
+	if a == nil {
+		return nil
+	}
 	subtypes := SplitBySubtype(node)
 	for subtype, subData := range subtypes {
 		if err := UpsertData(api.Data{
