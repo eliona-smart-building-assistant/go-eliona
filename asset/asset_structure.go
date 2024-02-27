@@ -92,7 +92,7 @@ func traverseLocationalTree(
 	}
 
 	if currentAssetId != nil && upsertingData {
-		err = upsertData(node, *currentAssetId, ts, clientReference)
+		err = upsertNodeDataIfAssetExists(node, *currentAssetId, ts, clientReference)
 		if err != nil {
 			return createdCnt, err
 		}
@@ -130,7 +130,7 @@ func traverseFunctionalTree(
 	}
 
 	if currentAssetId != nil && upsertingData {
-		err = upsertData(node, *currentAssetId, ts, clientReference)
+		err = upsertNodeDataIfAssetExists(node, *currentAssetId, ts, clientReference)
 		if err != nil {
 			return createdCnt, err
 		}
@@ -149,27 +149,17 @@ func traverseFunctionalTree(
 	return createdCnt, nil
 }
 
-func upsertData(node Asset, assetId int32, ts *time.Time, clientReference *string) error {
-	a, err := getAsset(assetId)
-	if err != nil {
-		return fmt.Errorf("getting asset id %d: %v", assetId, err)
+func upsertNodeDataIfAssetExists(node Asset, assetId int32, ts *time.Time, clientReference *string) error {
+	cr := ""
+	if clientReference != nil {
+		cr = *clientReference
 	}
-	if a == nil {
-		return nil
-	}
-	subtypes := SplitBySubtype(node)
-	for subtype, subData := range subtypes {
-		if err := UpsertData(api.Data{
-			AssetId:         assetId,
-			Subtype:         subtype,
-			Timestamp:       *api.NewNullableTime(ts),
-			Data:            subData,
-			ClientReference: *api.NewNullableString(clientReference),
-		}); err != nil {
-			return fmt.Errorf("upserting asset %d into Eliona: %w", assetId, err)
-		}
-	}
-	return nil
+	return UpsertAssetDataIfAssetExists(Data{
+		AssetId:         assetId,
+		Timestamp:       *api.NewNullableTime(ts),
+		ClientReference: cr,
+		Data:            node,
+	})
 }
 
 func createRoot(ast Asset, projectId string) (assetId *int32, created bool, err error) {
