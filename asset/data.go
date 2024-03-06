@@ -87,7 +87,13 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 
 func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 	value := reflect.ValueOf(data)
+	if value.Kind() == reflect.Ptr {
+		value = value.Elem()
+	}
 	valueType := reflect.TypeOf(data)
+	if valueType.Kind() == reflect.Ptr {
+		valueType = valueType.Elem()
+	}
 
 	result := make(map[api.DataSubtype]map[string]interface{})
 

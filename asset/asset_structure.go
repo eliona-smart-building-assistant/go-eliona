@@ -2,6 +2,7 @@ package asset
 
 import (
 	"fmt"
+	"time"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
@@ -33,6 +34,14 @@ type Asset interface {
 }
 
 func CreateAssets(root Root, projectId string) (createdCnt int, err error) {
+	return createAssetsAndUpsertData(root, projectId, false, nil, nil)
+}
+
+func CreateAssetsAndUpsertData(root Root, projectId string, ts *time.Time, clientReference *string) (createdCnt int, err error) {
+	return createAssetsAndUpsertData(root, projectId, true, ts, clientReference)
+}
+
+func createAssetsAndUpsertData(root Root, projectId string, upsertingData bool, ts *time.Time, clientReference *string) (createdCnt int, err error) {
 	rootAssetID, created, err := createRoot(root, projectId)
 	if err != nil {
 		return createdCnt, fmt.Errorf("upserting root asset: %v", err)
@@ -44,7 +53,7 @@ func CreateAssets(root Root, projectId string) (createdCnt int, err error) {
 		if fc == nil {
 			continue
 		}
-		traverseCreated, err := traverseFunctionalTree(fc, projectId, rootAssetID, rootAssetID)
+		traverseCreated, err := traverseFunctionalTree(fc, projectId, rootAssetID, rootAssetID, upsertingData, ts, clientReference)
 		if err != nil {
 			return createdCnt, fmt.Errorf("functional tree traversal: %v", err)
 		}
@@ -55,7 +64,7 @@ func CreateAssets(root Root, projectId string) (createdCnt int, err error) {
 		if lc == nil {
 			continue
 		}
-		traverseCreated, err := traverseLocationalTree(lc, projectId, rootAssetID, rootAssetID)
+		traverseCreated, err := traverseLocationalTree(lc, projectId, rootAssetID, rootAssetID, upsertingData, ts, clientReference)
 		if err != nil {
 			return createdCnt, fmt.Errorf("locational tree traversal: %v", err)
 		}
@@ -64,7 +73,16 @@ func CreateAssets(root Root, projectId string) (createdCnt int, err error) {
 	return createdCnt, nil
 }
 
-func traverseLocationalTree(node LocationalNode, projectId string, locationalParentAssetId, functionalParentAssetId *int32) (createdCnt int, err error) {
+func traverseLocationalTree(
+	node LocationalNode,
+	projectId string,
+	locationalParentAssetId,
+	functionalParentAssetId *int32,
+	upsertingData bool,
+	ts *time.Time,
+	clientReference *string,
+) (createdCnt int, err error) {
+
 	currentAssetId, created, err := createAsset(node, projectId, locationalParentAssetId, functionalParentAssetId)
 	if err != nil {
 		return createdCnt, err
@@ -73,11 +91,18 @@ func traverseLocationalTree(node LocationalNode, projectId string, locationalPar
 		createdCnt++
 	}
 
+	if currentAssetId != nil && upsertingData {
+		err = upsertNodeDataIfAssetExists(node, *currentAssetId, ts, clientReference)
+		if err != nil {
+			return createdCnt, err
+		}
+	}
+
 	for _, child := range node.GetLocationalChildren() {
 		if child == nil {
 			continue
 		}
-		traverseCreated, err := traverseLocationalTree(child, projectId, currentAssetId, functionalParentAssetId)
+		traverseCreated, err := traverseLocationalTree(child, projectId, currentAssetId, functionalParentAssetId, upsertingData, ts, clientReference)
 		if err != nil {
 			return createdCnt, err
 		}
@@ -86,7 +111,16 @@ func traverseLocationalTree(node LocationalNode, projectId string, locationalPar
 	return createdCnt, nil
 }
 
-func traverseFunctionalTree(node FunctionalNode, projectId string, locationalParentAssetId, functionalParentAssetId *int32) (createdCnt int, err error) {
+func traverseFunctionalTree(
+	node FunctionalNode,
+	projectId string,
+	locationalParentAssetId,
+	functionalParentAssetId *int32,
+	upsertingData bool,
+	ts *time.Time,
+	clientReference *string,
+) (createdCnt int, err error) {
+
 	currentAssetId, created, err := createAsset(node, projectId, locationalParentAssetId, functionalParentAssetId)
 	if err != nil {
 		return createdCnt, err
@@ -95,17 +129,37 @@ func traverseFunctionalTree(node FunctionalNode, projectId string, locationalPar
 		createdCnt++
 	}
 
+	if currentAssetId != nil && upsertingData {
+		err = upsertNodeDataIfAssetExists(node, *currentAssetId, ts, clientReference)
+		if err != nil {
+			return createdCnt, err
+		}
+	}
+
 	for _, child := range node.GetFunctionalChildren() {
 		if child == nil {
 			continue
 		}
-		traverseCreated, err := traverseFunctionalTree(child, projectId, locationalParentAssetId, currentAssetId)
+		traverseCreated, err := traverseFunctionalTree(child, projectId, locationalParentAssetId, currentAssetId, upsertingData, ts, clientReference)
 		if err != nil {
 			return createdCnt, err
 		}
 		createdCnt += traverseCreated
 	}
 	return createdCnt, nil
+}
+
+func upsertNodeDataIfAssetExists(node Asset, assetId int32, ts *time.Time, clientReference *string) error {
+	cr := ""
+	if clientReference != nil {
+		cr = *clientReference
+	}
+	return UpsertAssetDataIfAssetExists(Data{
+		AssetId:         assetId,
+		Timestamp:       *api.NewNullableTime(ts),
+		ClientReference: cr,
+		Data:            node,
+	})
 }
 
 func createRoot(ast Asset, projectId string) (assetId *int32, created bool, err error) {
