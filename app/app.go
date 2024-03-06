@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"strings"
 
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
 	"github.com/eliona-smart-building-assistant/go-eliona/client"
@@ -135,7 +136,22 @@ func Init(connection db.Connection, appAndSchemaName string, initFunctions ...fu
 
 func fixPrivilege(connection db.Connection, appAndSchemaName string) error {
 	_, err := connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", appAndSchemaName, db.Username()))
-	return err
+	if err != nil {
+		return err
+	}
+	if strings.Contains(appAndSchemaName, "-") {
+		_, err = connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", strings.ReplaceAll(appAndSchemaName, "-", "_"), db.Username()))
+		if err != nil {
+			return err
+		}
+	}
+	if strings.Contains(appAndSchemaName, "_") {
+		_, err = connection.Exec(context.Background(), fmt.Sprintf("select fixprivilege('%s','%s')", strings.ReplaceAll(appAndSchemaName, "_", "-"), db.Username()))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 // appRegistered checks if the app is already initialized.
