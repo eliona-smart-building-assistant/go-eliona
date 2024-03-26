@@ -61,7 +61,7 @@ type Data struct {
 // If the eliona ID does not exist, the upsert is ignored.
 func UpsertAssetDataIfAssetExists(data Data) error {
 	a, err := getAsset(data.AssetId)
-	var apiErr api.GenericOpenAPIError
+	var apiErr *api.GenericOpenAPIError
 	if errors.As(err, &apiErr) {
 		if apiErr.Error() == "404 Not Found" {
 			return nil
