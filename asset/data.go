@@ -16,6 +16,7 @@
 package asset
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 
@@ -60,11 +61,17 @@ type Data struct {
 // If the eliona ID does not exist, the upsert is ignored.
 func UpsertAssetDataIfAssetExists(data Data) error {
 	a, err := getAsset(data.AssetId)
+	var apiErr api.GenericOpenAPIError
+	if errors.As(err, &apiErr) {
+		if apiErr.Error() == "404 Not Found" {
+			return nil
+		}
+	}
 	if err != nil {
 		return fmt.Errorf("getting asset id %v: %v", data.AssetId, err)
 	}
 	if a == nil {
-		return nil
+		return fmt.Errorf("Shouldn't happen: asset is nil")
 	}
 	asset := *a
 
