@@ -17,6 +17,7 @@ package asset
 
 import (
 	"fmt"
+	"net/http"
 	"path/filepath"
 
 	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
@@ -41,9 +42,12 @@ func UpsertAssetType(assetType api.AssetType) error {
 }
 
 func getAsset(assetId int32) (*api.Asset, error) {
-	asset, _, err := client.NewClient().AssetsAPI.
+	asset, res, err := client.NewClient().AssetsAPI.
 		GetAssetById(client.AuthenticationContext(), assetId).
 		Execute()
+	if res.StatusCode == http.StatusNotFound {
+		return nil, nil
+	}
 	return asset, err
 }
 
