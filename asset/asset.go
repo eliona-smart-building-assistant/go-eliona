@@ -54,7 +54,8 @@ func getAsset(assetId int32) (*api.Asset, error) {
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
 	asset, err := getAsset(assetId)
-	if err != nil {
+	if
+	 err != nil {
 		tools.LogError(fmt.Errorf("checking if asset %v exists: %w", assetId, err))
 	}
 	return asset != nil, err
