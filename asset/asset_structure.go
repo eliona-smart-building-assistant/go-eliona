@@ -87,6 +87,11 @@ func traverseLocationalTree(
 	if err != nil {
 		return createdCnt, err
 	}
+	if !created {
+		if err := updateAssetParent(node, projectId, locationalParentAssetId, nil); err != nil {
+			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
+		}
+	}
 	if created {
 		createdCnt++
 	}
@@ -124,6 +129,11 @@ func traverseFunctionalTree(
 	currentAssetId, created, err := createAsset(node, projectId, locationalParentAssetId, functionalParentAssetId)
 	if err != nil {
 		return createdCnt, err
+	}
+	if !created {
+		if err := updateAssetParent(node, projectId, nil, functionalParentAssetId); err != nil {
+			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
+		}
 	}
 	if created {
 		createdCnt++
@@ -175,7 +185,6 @@ func createAsset(ast Asset, projectId string, locationalParentAssetId *int32, fu
 		return originalAssetID, created, nil
 	}
 	a := api.Asset{
-		Id:                      *api.NewNullableInt32(originalAssetID),
 		ProjectId:               projectId,
 		GlobalAssetIdentifier:   ast.GetGAI(),
 		Name:                    *api.NewNullableString(common.Ptr(ast.GetName())),
@@ -197,4 +206,25 @@ func createAsset(ast Asset, projectId string, locationalParentAssetId *int32, fu
 		return nil, created, fmt.Errorf("setting asset id: %v", err)
 	}
 	return assetID, created, nil
+}
+
+func updateAssetParent(ast Asset, projectId string, locationalParentAssetId *int32, functionalParentAssetId *int32) error {
+	a := api.Asset{
+		ProjectId:             projectId,
+		GlobalAssetIdentifier: ast.GetGAI(),
+		Name:                  *api.NewNullableString(common.Ptr(ast.GetName())),
+		AssetType:             ast.GetAssetType(),
+		Description:           *api.NewNullableString(common.Ptr(ast.GetDescription())),
+	}
+	if locationalParentAssetId != nil {
+		a.ParentLocationalAssetId = *api.NewNullableInt32(locationalParentAssetId)
+	}
+	if functionalParentAssetId != nil {
+		a.ParentFunctionalAssetId = *api.NewNullableInt32(functionalParentAssetId)
+	}
+	_, err := UpsertAsset(a)
+	if err != nil {
+		return fmt.Errorf("upserting asset %+v into Eliona: %v", a, err)
+	}
+	return nil
 }
