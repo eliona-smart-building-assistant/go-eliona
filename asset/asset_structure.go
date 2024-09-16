@@ -212,9 +212,7 @@ func updateAssetParent(ast Asset, projectId string, locationalParentAssetId *int
 	a := api.Asset{
 		ProjectId:             projectId,
 		GlobalAssetIdentifier: ast.GetGAI(),
-		Name:                  *api.NewNullableString(common.Ptr(ast.GetName())),
 		AssetType:             ast.GetAssetType(),
-		Description:           *api.NewNullableString(common.Ptr(ast.GetDescription())),
 	}
 	if locationalParentAssetId != nil {
 		a.ParentLocationalAssetId = *api.NewNullableInt32(locationalParentAssetId)
