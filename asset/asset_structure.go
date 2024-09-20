@@ -88,7 +88,7 @@ func traverseLocationalTree(
 		return createdCnt, err
 	}
 	if !created {
-		if err := updateAssetParent(node, projectId, locationalParentAssetId, nil); err != nil {
+		if err := updateAssetParent(currentAssetId, node, projectId, locationalParentAssetId, nil); err != nil {
 			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
 		}
 	}
@@ -131,7 +131,7 @@ func traverseFunctionalTree(
 		return createdCnt, err
 	}
 	if !created {
-		if err := updateAssetParent(node, projectId, nil, functionalParentAssetId); err != nil {
+		if err := updateAssetParent(currentAssetId, node, projectId, nil, functionalParentAssetId); err != nil {
 			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
 		}
 	}
@@ -208,8 +208,9 @@ func createAsset(ast Asset, projectId string, locationalParentAssetId *int32, fu
 	return assetID, created, nil
 }
 
-func updateAssetParent(ast Asset, projectId string, locationalParentAssetId *int32, functionalParentAssetId *int32) error {
+func updateAssetParent(assetId *int32, ast Asset, projectId string, locationalParentAssetId *int32, functionalParentAssetId *int32) error {
 	a := api.Asset{
+		Id:                    *api.NewNullableInt32(assetId),
 		ProjectId:             projectId,
 		GlobalAssetIdentifier: ast.GetGAI(),
 		AssetType:             ast.GetAssetType(),
