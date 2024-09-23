@@ -74,17 +74,24 @@ type Environment struct {
 
 func parseEnvironment(tokenString *string) (*Environment, error) {
 	if tokenString == nil {
-		return nil, nil
+		return nil, fmt.Errorf("token string is nil")
 	}
 
-	// Parse the token
 	token, _, err := new(jwt.Parser).ParseUnverified(*tokenString, &Environment{})
-
-	if claims, ok := token.Claims.(*Environment); ok {
-		return claims, nil
-	} else {
-		return nil, fmt.Errorf("invalid claims: %w", err)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse token: %w", err)
 	}
+
+	if token == nil || token.Claims == nil {
+		return nil, fmt.Errorf("token or token claims are nil")
+	}
+
+	claims, ok := token.Claims.(*Environment)
+	if !ok || claims == nil {
+		return nil, fmt.Errorf("failed to parse environment claims from token or claims are nil")
+	}
+
+	return claims, nil
 }
 
 type EnvironmentHandler struct {
