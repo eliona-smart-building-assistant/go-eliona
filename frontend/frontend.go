@@ -22,6 +22,7 @@ import (
 	"strings"
 
 	"github.com/eliona-smart-building-assistant/go-utils/common"
+	"github.com/eliona-smart-building-assistant/go-utils/log"
 
 	"github.com/golang-jwt/jwt"
 )
@@ -43,7 +44,7 @@ func GetBearerTokenString(r *http.Request) (*string, error) {
 	if len(token) == 0 {
 		cookie, err := r.Cookie("elionaAuthorization")
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("finding cookie: %v", err)
 		} else {
 			return common.Ptr(fmt.Sprintf("%s", cookie.Value)), nil
 		}
@@ -54,9 +55,13 @@ func GetBearerTokenString(r *http.Request) (*string, error) {
 func ParseEnvironment(r *http.Request) (*Environment, error) {
 	token, err := GetBearerTokenString(r)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("getting bearer token string: %v", err)
 	}
-	return parseEnvironment(token)
+	env, err := parseEnvironment(token)
+	if err != nil {
+		return nil, fmt.Errorf("parsing environment: %v", err)
+	}
+	return env, nil
 }
 
 type Environment struct {
@@ -109,6 +114,7 @@ const environmentKey = keyType("environment")
 func (h EnvironmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	env, err := ParseEnvironment(r)
 	if err != nil {
+		log.Error("frontend", "serving http: failed to parse environment: %v", err)
 		h.handler.ServeHTTP(w, r)
 	} else {
 		h.handler.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), environmentKey, env)))
