@@ -17,6 +17,7 @@ package frontend
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 	"strings"
@@ -44,7 +45,7 @@ func GetBearerTokenString(r *http.Request) (*string, error) {
 	if len(token) == 0 {
 		cookie, err := r.Cookie("elionaAuthorization")
 		if err != nil {
-			return nil, fmt.Errorf("finding cookie: %v", err)
+			return nil, fmt.Errorf("finding cookie: %w", err)
 		} else {
 			return common.Ptr(fmt.Sprintf("%s", cookie.Value)), nil
 		}
@@ -55,7 +56,7 @@ func GetBearerTokenString(r *http.Request) (*string, error) {
 func ParseEnvironment(r *http.Request) (*Environment, error) {
 	token, err := GetBearerTokenString(r)
 	if err != nil {
-		return nil, fmt.Errorf("getting bearer token string: %v", err)
+		return nil, fmt.Errorf("getting bearer token string: %w", err)
 	}
 	env, err := parseEnvironment(token)
 	if err != nil {
@@ -114,7 +115,11 @@ const environmentKey = keyType("environment")
 func (h EnvironmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	env, err := ParseEnvironment(r)
 	if err != nil {
-		log.Error("frontend", "serving http: failed to parse environment: %v", err)
+		if !errors.Is(err, http.ErrNoCookie) {
+			// errNoCookie is triggered every local request, no need to report that.
+			// TODO: clarify why
+			log.Error("frontend", "serving http: failed to parse environment: %v", err)
+		}
 		h.handler.ServeHTTP(w, r)
 	} else {
 		h.handler.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), environmentKey, env)))
