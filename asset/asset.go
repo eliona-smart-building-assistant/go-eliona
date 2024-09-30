@@ -62,22 +62,6 @@ func ExistAsset(assetId int32) (bool, error) {
 
 // UpsertAsset inserts or updates an asset and returns the id
 func UpsertAsset(asset api.Asset) (*int32, error) {
-	if (!asset.Name.IsSet() || !asset.Description.IsSet()) && asset.Id.IsSet() {
-		// TODO: This is an ugly workaround to not overwrite name changes in Eliona.
-		// We have to get rid of this once APIv2 starts skipping empty fields.
-		fetchedAsset, _, err := client.NewClient().AssetsAPI.
-			GetAssetById(client.AuthenticationContext(), asset.GetId()).
-			Execute()
-		if err != nil {
-			tools.LogError(fmt.Errorf("getting asset %v: %w", asset.Id.Get(), err))
-		}
-		if !asset.Name.IsSet() {
-			asset.Name = fetchedAsset.Name
-		}
-		if !asset.Description.IsSet() {
-			asset.Description = fetchedAsset.Description
-		}
-	}
 	upsertedAsset, _, err := client.NewClient().AssetsAPI.
 		PutAsset(client.AuthenticationContext()).
 		Asset(asset).Execute()

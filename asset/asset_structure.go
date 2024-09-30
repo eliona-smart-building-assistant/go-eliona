@@ -5,6 +5,8 @@ import (
 	"time"
 
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
+	"github.com/eliona-smart-building-assistant/go-eliona/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
@@ -88,7 +90,7 @@ func traverseLocationalTree(
 		return createdCnt, err
 	}
 	if !created {
-		if err := updateAssetParent(currentAssetId, node, projectId, locationalParentAssetId, nil); err != nil {
+		if err := setAssetParent(currentAssetId, node, projectId, locationalParentAssetId, nil); err != nil {
 			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
 		}
 	}
@@ -131,7 +133,7 @@ func traverseFunctionalTree(
 		return createdCnt, err
 	}
 	if !created {
-		if err := updateAssetParent(currentAssetId, node, projectId, nil, functionalParentAssetId); err != nil {
+		if err := setAssetParent(currentAssetId, node, projectId, nil, functionalParentAssetId); err != nil {
 			return createdCnt, fmt.Errorf("updating asset parent: %v", err)
 		}
 	}
@@ -208,22 +210,38 @@ func createAsset(ast Asset, projectId string, locationalParentAssetId *int32, fu
 	return assetID, created, nil
 }
 
-func updateAssetParent(assetId *int32, ast Asset, projectId string, locationalParentAssetId *int32, functionalParentAssetId *int32) error {
-	a := api.Asset{
+func setAssetParent(assetId *int32, ast Asset, projectId string, locationalParentAssetId *int32, functionalParentAssetId *int32) error {
+	asset := api.Asset{
 		Id:                    *api.NewNullableInt32(assetId),
 		ProjectId:             projectId,
 		GlobalAssetIdentifier: ast.GetGAI(),
 		AssetType:             ast.GetAssetType(),
 	}
-	if locationalParentAssetId != nil {
-		a.ParentLocationalAssetId = *api.NewNullableInt32(locationalParentAssetId)
-	}
-	if functionalParentAssetId != nil {
-		a.ParentFunctionalAssetId = *api.NewNullableInt32(functionalParentAssetId)
-	}
-	_, err := UpsertAsset(a)
+	fetchedAsset, _, err := client.NewClient().AssetsAPI.
+		GetAssetById(client.AuthenticationContext(), asset.GetId()).
+		Execute()
 	if err != nil {
-		return fmt.Errorf("upserting asset %+v into Eliona: %v", a, err)
+		tools.LogError(fmt.Errorf("getting asset %v: %w", asset.GetId(), err))
+	}
+	if locationalParentAssetId != nil && !fetchedAsset.HasParentLocationalAssetId() {
+		asset.ParentLocationalAssetId = *api.NewNullableInt32(locationalParentAssetId)
+	}
+	if functionalParentAssetId != nil && !fetchedAsset.HasParentFunctionalAssetId() {
+		asset.ParentFunctionalAssetId = *api.NewNullableInt32(functionalParentAssetId)
+	}
+
+	// TODO: This is an ugly workaround to not overwrite name changes in Eliona.
+	// We have to get rid of this once APIv2 starts skipping empty fields.
+	if !asset.Name.IsSet() {
+		asset.Name = fetchedAsset.Name
+	}
+	if !asset.Description.IsSet() {
+		asset.Description = fetchedAsset.Description
+	}
+	//
+
+	if _, err := UpsertAsset(asset); err != nil {
+		return fmt.Errorf("upserting asset %+v into Eliona: %v", asset, err)
 	}
 	return nil
 }
