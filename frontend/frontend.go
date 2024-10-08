@@ -127,5 +127,9 @@ func (h EnvironmentHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetEnvironment(ctx context.Context) *Environment {
-	return ctx.Value(environmentKey).(*Environment)
+	v := ctx.Value(environmentKey)
+	if v == nil {
+		return nil
+	}
+	return v.(*Environment)
 }
