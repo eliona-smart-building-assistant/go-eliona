@@ -1,5 +1,5 @@
 //  This file is part of the eliona project.
-//  Copyright © 2022 LEICOM iTEC AG. All Rights Reserved.
+//  Copyright © 2024 LEICOM iTEC AG. All Rights Reserved.
 //  ______ _ _
 // |  ____| (_)
 // | |__  | |_  ___  _ __   __ _
@@ -72,6 +72,22 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 		return nil, err
 	}
 	return upsertedAsset.Id.Get(), nil
+}
+
+// UpsertAssetsBulkGAI inserts or updates all given assets and returns them
+// including asset IDs. Relations are identified by GAI+ProjectID.
+func UpsertAssetsBulkGAI(assets []api.Asset) ([]api.Asset, error) {
+	upsertedAssets, _, err := client.NewClient().AssetsAPI.
+		PutBulkAssets(client.AuthenticationContext()).
+		Asset(assets).
+		IdentifyBy(string(api.ASSET_IDENTIFY_BY_GAI_PROJ_ID)).
+		Execute()
+	if err != nil {
+		e := fmt.Errorf("upserting assets: %w", err)
+		tools.LogError(e)
+		return nil, e
+	}
+	return upsertedAssets, nil
 }
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
