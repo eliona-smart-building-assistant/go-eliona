@@ -76,6 +76,8 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 
 // UpsertAssetsBulkGAI inserts or updates all given assets and returns them
 // including asset IDs. Relations are identified by GAI+ProjectID.
+// Assets must be ordered - parents must come before their children, otherwise
+// relations will not be created.
 func UpsertAssetsBulkGAI(assets []api.Asset) ([]api.Asset, error) {
 	upsertedAssets, _, err := client.NewClient().AssetsAPI.
 		PutBulkAssets(client.AuthenticationContext()).

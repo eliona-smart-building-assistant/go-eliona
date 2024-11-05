@@ -98,6 +98,7 @@ func CreateAssetsAndUpsertData(root Root, projectId string, ts *time.Time, clien
 }
 
 // collectAssetsToCreate traverses the asset tree and collects assets that need to be created.
+// Note: The parent asset is always added to the assets slice before its children.
 func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, projectId string) error {
 	assetID, err := node.GetAssetID(projectId)
 	if err != nil {
@@ -142,6 +143,7 @@ func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI 
 
 // collectAssetsAndDataToCreate traverses the asset tree and collects assets that need to be created,
 // as well as data to be upserted.
+// Note: The parent asset is always added to the assets slice before its children.
 func collectAssetsAndDataToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, data *[]Data, projectId string, ts *time.Time, clientReference *string) error {
 	assetID, err := node.GetAssetID(projectId)
 	if err != nil {

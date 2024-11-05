@@ -34,13 +34,19 @@ type AssetWithParentReferences interface {
 }
 
 // CreateAssetsBulk creates assets within the asset structure provided.
+// It ensures that parent assets are created before their children by sorting the assets accordingly.
 func CreateAssetsBulk(assets []AssetWithParentReferences, projectId string) (createdCnt int, err error) {
 	return createAssets(assets, projectId)
 }
 
 func createAssets(assets []AssetWithParentReferences, projectId string) (createdCnt int, err error) {
+	sortedAssets, err := sortAssetsByDependencies(assets)
+	if err != nil {
+		return 0, fmt.Errorf("sorting assets: %v", err)
+	}
+
 	var apiAssets []api.Asset
-	for _, a := range assets {
+	for _, a := range sortedAssets {
 		apiAssets = append(apiAssets, assetToAPIAsset(a, projectId))
 	}
 	result, err := UpsertAssetsBulkGAI(apiAssets)
@@ -52,13 +58,13 @@ func createAssets(assets []AssetWithParentReferences, projectId string) (created
 	for _, a := range result {
 		resultsMap[a.GlobalAssetIdentifier] = a
 	}
-	for _, a := range assets {
+	for _, a := range sortedAssets {
 		updatedAPIAsset, ok := resultsMap[a.GetGAI()]
 		if !ok {
 			return 0, fmt.Errorf("should not happen: did not find GAI '%v' in updated api assets", a.GetGAI())
 		}
 		if !updatedAPIAsset.Id.IsSet() || *updatedAPIAsset.Id.Get() == 0 {
-			return 0, fmt.Errorf("GAI '%v' has zero valueAssetID in response from APIv2", a.GetGAI())
+			return 0, fmt.Errorf("GAI '%v' has zero value AssetID in response from APIv2", a.GetGAI())
 		}
 		if err := a.SetAssetID(updatedAPIAsset.GetId(), projectId); err != nil {
 			return 0, fmt.Errorf("setting asset ID: %v", err)
@@ -66,6 +72,70 @@ func createAssets(assets []AssetWithParentReferences, projectId string) (created
 	}
 
 	return len(result), nil
+}
+
+// sortAssetsByDependencies sorts the assets to ensure that parent assets are created before their children.
+// It performs a topological sort based on the parent GAIs.
+func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithParentReferences, error) {
+	assetMap := make(map[string]AssetWithParentReferences)
+	for _, asset := range assets {
+		assetMap[asset.GetGAI()] = asset
+	}
+
+	// Build a graph and perform topological sort
+	var sortedAssets []AssetWithParentReferences
+	visited := make(map[string]bool)
+	tempMark := make(map[string]bool)
+
+	var visit func(string) error
+	visit = func(gai string) error {
+		if tempMark[gai] {
+			return fmt.Errorf("circular dependency detected at asset with GAI '%s'", gai)
+		}
+		if !visited[gai] {
+			tempMark[gai] = true
+
+			asset := assetMap[gai]
+			// Visit locational parent
+			locParentGAI := asset.GetLocationalParentGAI()
+			if locParentGAI != "" {
+				if _, exists := assetMap[locParentGAI]; exists {
+					if err := visit(locParentGAI); err != nil {
+						return err
+					}
+				}
+			}
+			// Visit functional parent
+			funcParentGAI := asset.GetFunctionalParentGAI()
+			if funcParentGAI != "" {
+				if _, exists := assetMap[funcParentGAI]; exists {
+					if err := visit(funcParentGAI); err != nil {
+						return err
+					}
+				}
+			}
+
+			visited[gai] = true
+			tempMark[gai] = false
+			sortedAssets = append(sortedAssets, asset)
+		}
+		return nil
+	}
+
+	for gai := range assetMap {
+		if !visited[gai] {
+			if err := visit(gai); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	// Reverse sortedAssets to get the correct order
+	for i, j := 0, len(sortedAssets)-1; i < j; i, j = i+1, j-1 {
+		sortedAssets[i], sortedAssets[j] = sortedAssets[j], sortedAssets[i]
+	}
+
+	return sortedAssets, nil
 }
 
 func assetToAPIAsset(ast AssetWithParentReferences, projectId string) api.Asset {
