@@ -131,3 +131,17 @@ func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 
 	return result
 }
+
+func GetData(assetID int32, subtype string) ([]api.Data, error) {
+	data, _, err := client.NewClient().DataAPI.
+		GetData(client.AuthenticationContext()).
+		AssetId(assetID).
+		DataSubtype(subtype).
+		Execute()
+	if err != nil {
+		err = fmt.Errorf("getting data for asset %v subtype %v: %w", assetID, subtype, err)
+		tools.LogError(err)
+		return nil, err
+	}
+	return data, nil
+}
