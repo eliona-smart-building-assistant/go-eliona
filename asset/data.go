@@ -38,16 +38,44 @@ func UpsertData(data api.Data) error {
 	return err
 }
 
+// UpsertDataBulk inserts or updates the given asset data. If the data with the specified subtype does not exists, it will be created.
+// Otherwise, the timestamp and the data are updated.
+func UpsertDataBulk(datas []api.Data) error {
+	_, err := client.NewClient().DataAPI.
+		PutBulkData(client.AuthenticationContext()).
+		Data(datas).
+		Execute()
+	if err != nil {
+		tools.LogError(fmt.Errorf("upserting data bulk: %w", err))
+	}
+	return err
+}
+
 // UpsertDataIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
 func UpsertDataIfAssetExists(data api.Data) error {
 	exists, err := ExistAsset(data.AssetId)
 	if err != nil {
-		return err
+		return fmt.Errorf("checking if asset %v exists: %w", data.AssetId, err)
 	}
 	if exists {
 		return UpsertData(data)
 	}
 	return nil
+}
+
+// UpsertDataBulkIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
+func UpsertDataBulkIfAssetExists(datas []api.Data) error {
+	upsertDatas := make([]api.Data, 0, len(datas))
+	for _, data := range datas {
+		exists, err := ExistAsset(data.AssetId)
+		if err != nil {
+			return fmt.Errorf("checking if asset %v exists: %w", data.AssetId, err)
+		}
+		if exists {
+			upsertDatas = append(upsertDatas, data)
+		}
+	}
+	return UpsertDataBulk(upsertDatas)
 }
 
 type Data struct {
@@ -71,7 +99,7 @@ func UpsertAssetDataIfAssetExists(data Data) error {
 		return fmt.Errorf("getting asset id %v: %v", data.AssetId, err)
 	}
 	if a == nil {
-		return fmt.Errorf("Shouldn't happen: asset is nil")
+		return fmt.Errorf("shouldn't happen: asset is nil")
 	}
 	asset := *a
 
