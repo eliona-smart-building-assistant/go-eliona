@@ -82,7 +82,6 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 		assetMap[asset.GetGAI()] = asset
 	}
 
-	// Build a graph and perform topological sort
 	var sortedAssets []AssetWithParentReferences
 	visited := make(map[string]bool)
 	tempMark := make(map[string]bool)
@@ -92,33 +91,38 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 		if tempMark[gai] {
 			return fmt.Errorf("circular dependency detected at asset with GAI '%s'", gai)
 		}
-		if !visited[gai] {
-			tempMark[gai] = true
-
-			asset := assetMap[gai]
-			// Visit locational parent
-			locParentGAI := asset.GetLocationalParentGAI()
-			if locParentGAI != "" {
-				if _, exists := assetMap[locParentGAI]; exists {
-					if err := visit(locParentGAI); err != nil {
-						return err
-					}
-				}
-			}
-			// Visit functional parent
-			funcParentGAI := asset.GetFunctionalParentGAI()
-			if funcParentGAI != "" {
-				if _, exists := assetMap[funcParentGAI]; exists {
-					if err := visit(funcParentGAI); err != nil {
-						return err
-					}
-				}
-			}
-
-			visited[gai] = true
-			tempMark[gai] = false
-			sortedAssets = append(sortedAssets, asset)
+		if visited[gai] {
+			return nil
 		}
+
+		tempMark[gai] = true
+		defer func() { tempMark[gai] = false }()
+
+		asset, exists := assetMap[gai]
+		if !exists {
+			return fmt.Errorf("asset with GAI '%s' not found", gai)
+		}
+
+		locParentGAI := asset.GetLocationalParentGAI()
+		if locParentGAI != "" {
+			if _, parentExists := assetMap[locParentGAI]; parentExists {
+				if err := visit(locParentGAI); err != nil {
+					return err
+				}
+			}
+		}
+
+		funcParentGAI := asset.GetFunctionalParentGAI()
+		if funcParentGAI != "" {
+			if _, parentExists := assetMap[funcParentGAI]; parentExists {
+				if err := visit(funcParentGAI); err != nil {
+					return err
+				}
+			}
+		}
+
+		visited[gai] = true
+		sortedAssets = append(sortedAssets, asset)
 		return nil
 	}
 
@@ -128,11 +132,6 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 				return nil, err
 			}
 		}
-	}
-
-	// Reverse sortedAssets to get the correct order
-	for i, j := 0, len(sortedAssets)-1; i < j; i, j = i+1, j-1 {
-		sortedAssets[i], sortedAssets[j] = sortedAssets[j], sortedAssets[i]
 	}
 
 	return sortedAssets, nil
