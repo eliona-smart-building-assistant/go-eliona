@@ -2,9 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"github.com/eliona-smart-building-assistant/go-eliona/asset"
 	"reflect"
 	"strings"
+
+	"github.com/eliona-smart-building-assistant/go-eliona/asset"
 )
 
 type FieldTag struct {
@@ -29,7 +30,7 @@ func parseElionaTag(field reflect.StructField) (*FieldTag, error) {
 	if subtypeTag != "" {
 		subType = asset.SubType(subtypeTag)
 		switch subType {
-		case asset.Status, asset.Info, asset.Input, asset.Output:
+		case asset.Status, asset.Info, asset.Input, asset.Output, asset.Property:
 			// valid subtype
 		default:
 			return nil, fmt.Errorf("invalid subtype in eliona tag on field %s", field.Name)

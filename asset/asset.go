@@ -145,8 +145,9 @@ func InitAssetTypeFiles(pattern string) func(db.Connection) error {
 type SubType string
 
 const (
-	Status SubType = "status"
-	Info   SubType = "info"
-	Input  SubType = "input"
-	Output SubType = "output"
+	Status   SubType = "status"
+	Info     SubType = "info"
+	Input    SubType = "input"
+	Output   SubType = "output"
+	Property SubType = "property"
 )
