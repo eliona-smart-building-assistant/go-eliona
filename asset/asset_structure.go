@@ -54,7 +54,7 @@ type Asset interface {
 func CreateAssets(root Root, projectId string) (createdCnt int, err error) {
 	var assetsToCreate []AssetWithParentReferences
 
-	err = collectAssetsToCreate(root, "", "", &assetsToCreate, projectId)
+	err = collectAssetsToCreate(root, "", "", &assetsToCreate, projectId, map[string]bool{})
 	if err != nil {
 		return 0, fmt.Errorf("collecting assets to create: %v", err)
 	}
@@ -76,7 +76,7 @@ func CreateAssetsAndUpsertData(root Root, projectId string, ts *time.Time, clien
 	var assetsToCreate []AssetWithParentReferences
 	var dataToUpsert []Data
 
-	err = collectAssetsAndDataToCreate(root, "", "", &assetsToCreate, &dataToUpsert, projectId, ts, clientReference)
+	err = collectAssetsAndDataToCreate(root, "", "", &assetsToCreate, &dataToUpsert, projectId, ts, clientReference, map[string]bool{})
 	if err != nil {
 		return 0, fmt.Errorf("collecting assets and data to create: %v", err)
 	}
@@ -99,7 +99,25 @@ func CreateAssetsAndUpsertData(root Root, projectId string, ts *time.Time, clien
 
 // collectAssetsToCreate traverses the asset tree and collects assets that need to be created.
 // Note: The parent asset is always added to the assets slice before its children.
-func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, projectId string) error {
+func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, projectId string, visited map[string]bool) error {
+	if visited[node.GetGAI()] {
+		// Update existing relationships instead of skipping entirely
+		for _, asset := range *assets {
+			if asset.GetGAI() == node.GetGAI() {
+				// Update locational and functional parent relationships
+				if locationalParentGAI != "" && asset.GetLocationalParentGAI() == "" {
+					asset.(*AssetToCreate).locationalParentGAI = locationalParentGAI
+				}
+				if functionalParentGAI != "" && asset.GetFunctionalParentGAI() == "" {
+					asset.(*AssetToCreate).functionalParentGAI = functionalParentGAI
+				}
+				break
+			}
+		}
+		return nil
+	}
+	visited[node.GetGAI()] = true
+
 	assetID, err := node.GetAssetID(projectId)
 	if err != nil {
 		return fmt.Errorf("getting asset ID: %v", err)
@@ -119,7 +137,7 @@ func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI 
 			if child == nil {
 				continue
 			}
-			err := collectAssetsToCreate(child, node.GetGAI(), functionalParentGAI, assets, projectId)
+			err := collectAssetsToCreate(child, node.GetGAI(), functionalParentGAI, assets, projectId, visited)
 			if err != nil {
 				return err
 			}
@@ -131,7 +149,7 @@ func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI 
 			if child == nil {
 				continue
 			}
-			err := collectAssetsToCreate(child, locationalParentGAI, node.GetGAI(), assets, projectId)
+			err := collectAssetsToCreate(child, locationalParentGAI, node.GetGAI(), assets, projectId, visited)
 			if err != nil {
 				return err
 			}
@@ -141,10 +159,25 @@ func collectAssetsToCreate(node Asset, locationalParentGAI, functionalParentGAI 
 	return nil
 }
 
-// collectAssetsAndDataToCreate traverses the asset tree and collects assets that need to be created,
-// as well as data to be upserted.
-// Note: The parent asset is always added to the assets slice before its children.
-func collectAssetsAndDataToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, data *[]Data, projectId string, ts *time.Time, clientReference *string) error {
+func collectAssetsAndDataToCreate(node Asset, locationalParentGAI, functionalParentGAI string, assets *[]AssetWithParentReferences, data *[]Data, projectId string, ts *time.Time, clientReference *string, visited map[string]bool) error {
+	if visited[node.GetGAI()] {
+		// Update existing relationships instead of skipping entirely
+		for _, asset := range *assets {
+			if asset.GetGAI() == node.GetGAI() {
+				// Update locational and functional parent relationships
+				if locationalParentGAI != "" && asset.GetLocationalParentGAI() == "" {
+					asset.(*AssetToCreate).locationalParentGAI = locationalParentGAI
+				}
+				if functionalParentGAI != "" && asset.GetFunctionalParentGAI() == "" {
+					asset.(*AssetToCreate).functionalParentGAI = functionalParentGAI
+				}
+				break
+			}
+		}
+		return nil
+	}
+	visited[node.GetGAI()] = true
+
 	assetID, err := node.GetAssetID(projectId)
 	if err != nil {
 		return fmt.Errorf("getting asset ID: %v", err)
@@ -173,7 +206,7 @@ func collectAssetsAndDataToCreate(node Asset, locationalParentGAI, functionalPar
 			if child == nil {
 				continue
 			}
-			err := collectAssetsAndDataToCreate(child, node.GetGAI(), functionalParentGAI, assets, data, projectId, ts, clientReference)
+			err := collectAssetsAndDataToCreate(child, node.GetGAI(), functionalParentGAI, assets, data, projectId, ts, clientReference, visited)
 			if err != nil {
 				return err
 			}
@@ -185,7 +218,7 @@ func collectAssetsAndDataToCreate(node Asset, locationalParentGAI, functionalPar
 			if child == nil {
 				continue
 			}
-			err := collectAssetsAndDataToCreate(child, locationalParentGAI, node.GetGAI(), assets, data, projectId, ts, clientReference)
+			err := collectAssetsAndDataToCreate(child, locationalParentGAI, node.GetGAI(), assets, data, projectId, ts, clientReference, visited)
 			if err != nil {
 				return err
 			}
