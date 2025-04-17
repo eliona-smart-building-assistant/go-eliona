@@ -25,7 +25,7 @@ import (
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/log"
 
-	"github.com/golang-jwt/jwt/v4"
+	"github.com/golang-jwt/jwt/v5"
 )
 
 func extractBearerToken(authHeader string) string {
@@ -75,7 +75,7 @@ type Environment struct {
 	RoleId       string `json:"role_id"`
 	UserId       string `json:"user_id"`
 	Entitlements string `json:"entitlements"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 func parseEnvironment(tokenString *string) (*Environment, error) {
