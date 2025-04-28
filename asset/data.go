@@ -1,5 +1,5 @@
 //  This file is part of the eliona project.
-//  Copyright © 2022 LEICOM iTEC AG. All Rights Reserved.
+//  Copyright © 2025 LEICOM iTEC AG. All Rights Reserved.
 //  ______ _ _
 // |  ____| (_)
 // | |__  | |_  ___  _ __   __ _
@@ -89,17 +89,14 @@ type Data struct {
 // If the eliona ID does not exist, the upsert is ignored.
 func UpsertAssetDataIfAssetExists(data Data) error {
 	a, err := getAsset(data.AssetId)
-	var apiErr *api.GenericOpenAPIError
-	if errors.As(err, &apiErr) {
-		if apiErr.Error() == "404 Not Found" {
-			return nil
-		}
+	if errors.Is(err, ErrNotFound) {
+		return nil
 	}
 	if err != nil {
 		return fmt.Errorf("getting asset id %v: %v", data.AssetId, err)
 	}
 	if a == nil {
-		return fmt.Errorf("shouldn't happen: asset is nil")
+		return fmt.Errorf("shouldn't happen: asset with id %v is nil", data.AssetId)
 	}
 	asset := *a
 

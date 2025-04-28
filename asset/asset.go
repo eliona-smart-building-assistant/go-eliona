@@ -16,6 +16,7 @@
 package asset
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"path/filepath"
@@ -27,6 +28,8 @@ import (
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
+
+var ErrNotFound = errors.New("not found")
 
 // UpsertAssetType insert or, when already exist, updates an asset type
 func UpsertAssetType(assetType api.AssetType) error {
@@ -46,18 +49,21 @@ func getAsset(assetId int32) (*api.Asset, error) {
 		GetAssetById(client.AuthenticationContext(), assetId).
 		Execute()
 	if res.StatusCode == http.StatusNotFound {
-		return nil, nil
+		return nil, ErrNotFound
 	}
 	return asset, err
 }
 
 // ExistAsset returns true, if the given asset id exists in eliona
 func ExistAsset(assetId int32) (bool, error) {
-	asset, err := getAsset(assetId)
+	_, err := getAsset(assetId)
+	if errors.Is(err, ErrNotFound) {
+		return false, nil
+	}
 	if err != nil {
 		tools.LogError(fmt.Errorf("checking if asset %v exists: %w", assetId, err))
 	}
-	return asset != nil, err
+	return true, err
 }
 
 // UpsertAsset inserts or updates an asset and returns the id
