@@ -32,8 +32,19 @@ func NewClient() *api.APIClient {
 	return api.NewAPIClient(cfg)
 }
 
+func AuthenticationContextApiKey(apiKey string) context.Context {
+	return AuthenticationContextApiKeyWrap(context.Background(), apiKey)
+}
+
 func AuthenticationContext() context.Context {
 	return AuthenticationContextWrap(context.Background())
+}
+
+func AuthenticationContextApiKeyWrap(ctx context.Context, apiKey string) context.Context {
+	apiKeys := map[string]api.APIKey{
+		"ApiKeyAuth": {Key: apiKey},
+	}
+	return context.WithValue(ctx, api.ContextAPIKeys, apiKeys)
 }
 
 func AuthenticationContextWrap(ctx context.Context) context.Context {
