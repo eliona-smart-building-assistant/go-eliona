@@ -16,20 +16,19 @@
 package asset
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
-	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
-	"github.com/eliona-smart-building-assistant/go-eliona/client"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v3/tools"
+	"github.com/eliona-smart-building-assistant/go-eliona/v2/client"
 )
 
 // UpsertData inserts or updates the given asset data. If the data with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
-func UpsertData(data api.Data) error {
-	_, err := client.NewClient().DataAPI.
-		PutData(client.AuthenticationContext()).
+func UpsertData(apiEndpoint string, apiKey string, data api.Data) error {
+	_, err := client.NewClient(apiEndpoint).DataAPI.
+		PutData(client.AuthenticationContext(apiKey)).
 		Data(data).
 		Execute()
 	if err != nil {
@@ -40,9 +39,9 @@ func UpsertData(data api.Data) error {
 
 // UpsertDataBulk inserts or updates the given asset data. If the data with the specified subtype does not exists, it will be created.
 // Otherwise, the timestamp and the data are updated.
-func UpsertDataBulk(datas []api.Data) error {
-	_, err := client.NewClient().DataAPI.
-		PutBulkData(client.AuthenticationContext()).
+func UpsertDataBulk(apiEndpoint string, apiKey string, datas []api.Data) error {
+	_, err := client.NewClient(apiEndpoint).DataAPI.
+		PutBulkData(client.AuthenticationContext(apiKey)).
 		Data(datas).
 		Execute()
 	if err != nil {
@@ -52,22 +51,22 @@ func UpsertDataBulk(datas []api.Data) error {
 }
 
 // UpsertDataIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
-func UpsertDataIfAssetExists(data api.Data) error {
-	exists, err := ExistAsset(data.AssetId)
+func UpsertDataIfAssetExists(apiEndpoint string, apiKey string, data api.Data) error {
+	exists, err := ExistAsset(apiEndpoint, apiKey, data.AssetId)
 	if err != nil {
 		return fmt.Errorf("checking if asset %v exists: %w", data.AssetId, err)
 	}
 	if exists {
-		return UpsertData(data)
+		return UpsertData(apiEndpoint, apiKey, data)
 	}
 	return nil
 }
 
 // UpsertDataBulkIfAssetExists upserts the data if the eliona id exists. Otherwise, the upsert is ignored.
-func UpsertDataBulkIfAssetExists(datas []api.Data) error {
+func UpsertDataBulkIfAssetExists(apiEndpoint string, apiKey string, datas []api.Data) error {
 	upsertDatas := make([]api.Data, 0, len(datas))
 	for _, data := range datas {
-		exists, err := ExistAsset(data.AssetId)
+		exists, err := ExistAsset(apiEndpoint, apiKey, data.AssetId)
 		if err != nil {
 			return fmt.Errorf("checking if asset %v exists: %w", data.AssetId, err)
 		}
@@ -75,7 +74,7 @@ func UpsertDataBulkIfAssetExists(datas []api.Data) error {
 			upsertDatas = append(upsertDatas, data)
 		}
 	}
-	return UpsertDataBulk(upsertDatas)
+	return UpsertDataBulk(apiEndpoint, apiKey, upsertDatas)
 }
 
 type Data struct {
@@ -87,27 +86,14 @@ type Data struct {
 
 // UpsertAssetDataIfAssetExists upserts the data in any struct having `eliona` field tags.
 // If the eliona ID does not exist, the upsert is ignored.
-func UpsertAssetDataIfAssetExists(data Data) error {
-	a, err := getAsset(data.AssetId)
-	if errors.Is(err, ErrNotFound) {
-		return nil
-	}
-	if err != nil {
-		return fmt.Errorf("getting asset id %v: %v", data.AssetId, err)
-	}
-	if a == nil {
-		return fmt.Errorf("shouldn't happen: asset with id %v is nil", data.AssetId)
-	}
-	asset := *a
-
+func UpsertAssetDataIfAssetExists(apiEndpoint string, apiKey string, data Data) error {
 	subtypes := SplitBySubtype(data.Data)
 	for subtype, subData := range subtypes {
-		if err := UpsertData(api.Data{
+		if err := UpsertData(apiEndpoint, apiKey, api.Data{
 			AssetId:         data.AssetId,
 			Subtype:         subtype,
 			Timestamp:       data.Timestamp,
 			Data:            subData,
-			AssetTypeName:   *api.NewNullableString(&asset.AssetType),
 			ClientReference: *api.NewNullableString(&data.ClientReference),
 		}); err != nil {
 			return fmt.Errorf("upserting data for subtype %s: %v", subtype, err)
@@ -157,9 +143,9 @@ func SplitBySubtype(data any) map[api.DataSubtype]map[string]interface{} {
 	return result
 }
 
-func GetData(assetID int32, subtype string) ([]api.Data, error) {
-	data, _, err := client.NewClient().DataAPI.
-		GetData(client.AuthenticationContext()).
+func GetData(apiEndpoint string, apiKey string, assetID int32, subtype string) ([]api.Data, error) {
+	data, _, err := client.NewClient(apiEndpoint).DataAPI.
+		GetData(client.AuthenticationContext(apiKey)).
 		AssetId(assetID).
 		DataSubtype(subtype).
 		Execute()

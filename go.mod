@@ -1,12 +1,12 @@
-module github.com/eliona-smart-building-assistant/go-eliona
+module github.com/eliona-smart-building-assistant/go-eliona/v2
 
 go 1.24
 
 require (
-	github.com/eliona-smart-building-assistant/go-eliona-api-client/v2 v2.8.2
-	github.com/eliona-smart-building-assistant/go-utils v1.1.6
-	github.com/golang-jwt/jwt/v5 v5.2.2
-	github.com/stretchr/testify v1.10.0
+	github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.1
+	github.com/eliona-smart-building-assistant/go-utils v1.1.10
+	github.com/golang-jwt/jwt/v5 v5.3.0
+	github.com/stretchr/testify v1.11.1
 )
 
 require (

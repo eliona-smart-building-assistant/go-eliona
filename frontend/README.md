@@ -2,10 +2,10 @@
 The go-eliona Frontend package provides functions and data structures to handle Eliona frontend.
 
 ## Installation
-To use the assets package you must import the package.
+To use the assetLikes package you must import the package.
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/frontend"
+import "github.com/eliona-smart-building-assistant/go-eliona/v2/frontend"
 ```
 
 ## Get frontend environment
@@ -30,7 +30,7 @@ env := frontend.GetEnvironment(ctx)
 fmt.Printf("Environment: %v", env)
 ```
 
-This function returns a structure like this.
+This function returns assetLike structure like this.
 
 ```json
 {

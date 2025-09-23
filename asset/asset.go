@@ -21,10 +21,10 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v3/tools"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
-	"github.com/eliona-smart-building-assistant/go-eliona/client"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
+	"github.com/eliona-smart-building-assistant/go-eliona/v2/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
@@ -32,9 +32,9 @@ import (
 var ErrNotFound = errors.New("not found")
 
 // UpsertAssetType insert or, when already exist, updates an asset type
-func UpsertAssetType(assetType api.AssetType) error {
-	_, _, err := client.NewClient().AssetTypesAPI.
-		PutAssetType(client.AuthenticationContext()).
+func UpsertAssetType(apiEndpoint string, apiKey string, assetType api.AssetType) error {
+	_, _, err := client.NewClient(apiEndpoint).AssetTypesAPI.
+		PutAssetType(client.AuthenticationContext(apiKey)).
 		Expansions([]string{"AssetType.attributes"}). // take values of attributes also
 		AssetType(assetType).
 		Execute()
@@ -44,9 +44,9 @@ func UpsertAssetType(assetType api.AssetType) error {
 	return err
 }
 
-func getAsset(assetId int32) (*api.Asset, error) {
-	asset, res, err := client.NewClient().AssetsAPI.
-		GetAssetById(client.AuthenticationContext(), assetId).
+func getAsset(apiEndpoint string, apiKey string, assetId int32) (*api.Asset, error) {
+	asset, res, err := client.NewClient(apiEndpoint).AssetsAPI.
+		GetAssetById(client.AuthenticationContext(apiKey), assetId).
 		Execute()
 	if res.StatusCode == http.StatusNotFound {
 		return nil, ErrNotFound
@@ -55,8 +55,8 @@ func getAsset(assetId int32) (*api.Asset, error) {
 }
 
 // ExistAsset returns true, if the given asset id exists in eliona
-func ExistAsset(assetId int32) (bool, error) {
-	_, err := getAsset(assetId)
+func ExistAsset(apiEndpoint string, apiKey string, assetId int32) (bool, error) {
+	_, err := getAsset(apiEndpoint, apiKey, assetId)
 	if errors.Is(err, ErrNotFound) {
 		return false, nil
 	}
@@ -67,9 +67,9 @@ func ExistAsset(assetId int32) (bool, error) {
 }
 
 // UpsertAsset inserts or updates an asset and returns the id
-func UpsertAsset(asset api.Asset) (*int32, error) {
-	upsertedAsset, _, err := client.NewClient().AssetsAPI.
-		PutAsset(client.AuthenticationContext()).
+func UpsertAsset(apiEndpoint string, apiKey string, asset api.Asset) (*int32, error) {
+	upsertedAsset, _, err := client.NewClient(apiEndpoint).AssetsAPI.
+		PutAsset(client.AuthenticationContext(apiKey)).
 		Asset(asset).Execute()
 	if err != nil {
 		tools.LogError(fmt.Errorf("upserting asset %v: %w", asset.Name, err))
@@ -81,14 +81,14 @@ func UpsertAsset(asset api.Asset) (*int32, error) {
 }
 
 // UpsertAssetsBulkGAI inserts or updates all given assets and returns them
-// including asset IDs. Relations are identified by GAI+ProjectID.
+// including asset IDs. Relations are identified by GAI + SiteID.
 // Assets must be ordered - parents must come before their children, otherwise
 // relations will not be created.
-func UpsertAssetsBulkGAI(assets []api.Asset) ([]api.Asset, error) {
-	upsertedAssets, _, err := client.NewClient().AssetsAPI.
-		PutBulkAssets(client.AuthenticationContext()).
+func UpsertAssetsBulkGAI(apiEndpoint string, apiKey string, assets []api.Asset) ([]api.Asset, error) {
+	upsertedAssets, _, err := client.NewClient(apiEndpoint).AssetsAPI.
+		PutBulkAssets(client.AuthenticationContext(apiKey)).
 		Asset(assets).
-		IdentifyBy(string(api.ASSET_IDENTIFY_BY_GAI_PROJ_ID)).
+		IdentifyBy(string(api.ASSET_IDENTIFY_BY_GAI_SITE_ID)).
 		Execute()
 	if err != nil {
 		e := fmt.Errorf("upserting assets: %w", err)
@@ -99,9 +99,9 @@ func UpsertAssetsBulkGAI(assets []api.Asset) ([]api.Asset, error) {
 }
 
 // UpsertAssetTypeAttribute insert or updates an asset and returns the id
-func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
-	_, _, err := client.NewClient().AssetTypesAPI.
-		PutAssetTypeAttribute(client.AuthenticationContext(), *attribute.AssetTypeName.Get()).
+func UpsertAssetTypeAttribute(apiEndpoint string, apiKey string, attribute api.AssetTypeAttribute) error {
+	_, _, err := client.NewClient(apiEndpoint).AssetTypesAPI.
+		PutAssetTypeAttribute(client.AuthenticationContext(apiKey), *attribute.AssetTypeName.Get()).
 		AssetTypeAttribute(attribute).
 		Execute()
 	if err != nil {
@@ -111,35 +111,35 @@ func UpsertAssetTypeAttribute(attribute api.AssetTypeAttribute) error {
 }
 
 // InitAssetType inserts or updates the given asset type.
-func InitAssetType(assetType api.AssetType) func(db.Connection) error {
+func InitAssetType(apiEndpoint string, apiKey string, assetType api.AssetType) func(db.Connection) error {
 	return func(db.Connection) error {
-		return UpsertAssetType(assetType)
+		return UpsertAssetType(apiEndpoint, apiKey, assetType)
 	}
 }
 
-func initAssetTypeFile(path string) error {
+func initAssetTypeFile(apiEndpoint string, apiKey string, path string) error {
 	assetType, err := common.UnmarshalFile[api.AssetType](path)
 	if err != nil {
 		return fmt.Errorf("unmarshalling file %s: %v", path, err)
 	}
-	return UpsertAssetType(assetType)
+	return UpsertAssetType(apiEndpoint, apiKey, assetType)
 }
 
 // InitAssetTypeFile inserts or updates the asset type build from the content of the given file.
-func InitAssetTypeFile(path string) func(db.Connection) error {
+func InitAssetTypeFile(apiEndpoint string, apiKey string, path string) func(db.Connection) error {
 	return func(db.Connection) error {
-		return initAssetTypeFile(path)
+		return initAssetTypeFile(apiEndpoint, apiKey, path)
 	}
 }
 
-func InitAssetTypeFiles(pattern string) func(db.Connection) error {
+func InitAssetTypeFiles(apiEndpoint string, apiKey string, pattern string) func(db.Connection) error {
 	return func(db.Connection) error {
 		paths, err := filepath.Glob(pattern)
 		if err != nil {
 			return fmt.Errorf("glob file pattern %s: %v", pattern, err)
 		}
 		for _, path := range paths {
-			err := initAssetTypeFile(path)
+			err := initAssetTypeFile(apiEndpoint, apiKey, path)
 			if err != nil {
 				return fmt.Errorf("initializing asset type %s: %v", path, err)
 			}

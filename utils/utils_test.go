@@ -16,7 +16,7 @@
 package utils
 
 import (
-	"github.com/eliona-smart-building-assistant/go-eliona/asset"
+	"github.com/eliona-smart-building-assistant/go-eliona/v2/asset"
 	"reflect"
 	"testing"
 

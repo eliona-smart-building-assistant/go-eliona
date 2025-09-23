@@ -5,7 +5,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/eliona-smart-building-assistant/go-eliona/asset"
+	"github.com/eliona-smart-building-assistant/go-eliona/v2/asset"
 )
 
 type FieldTag struct {

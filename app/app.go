@@ -23,8 +23,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v2/tools"
-	"github.com/eliona-smart-building-assistant/go-eliona/client"
+	"github.com/eliona-smart-building-assistant/go-eliona-api-client/v3/tools"
+	"github.com/eliona-smart-building-assistant/go-eliona/v2/client"
 	"github.com/eliona-smart-building-assistant/go-utils/db"
 	"github.com/eliona-smart-building-assistant/go-utils/log"
 )
@@ -96,8 +96,8 @@ func ExecSqlFile(path string) func(connection db.Connection) error {
 // This function guarantees that everything will only run once when the app is first launched.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Init(connection db.Connection, appAndSchemaName string, initFunctions ...func(connection db.Connection) error) {
-	if appRegistered(appAndSchemaName) {
+func Init(apiEndpoint string, apiKey string, connection db.Connection, appAndSchemaName string, initFunctions ...func(connection db.Connection) error) {
+	if appRegistered(apiEndpoint, apiKey, appAndSchemaName) {
 		log.Info("Apps", "Skip init because app %s is already initialized", appAndSchemaName)
 		return
 	} else {
@@ -126,7 +126,7 @@ func Init(connection db.Connection, appAndSchemaName string, initFunctions ...fu
 		log.Warn("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
-	err = registerApp(appAndSchemaName)
+	err = registerApp(apiEndpoint, apiKey, appAndSchemaName)
 	if err != nil {
 		log.Fatal("Apps", "Cannot register app %s as initialized: %v", appAndSchemaName, err)
 	}
@@ -155,9 +155,9 @@ func fixPrivilege(connection db.Connection, appAndSchemaName string) error {
 }
 
 // appRegistered checks if the app is already initialized.
-func appRegistered(appName string) bool {
-	app, _, err := client.NewClient().AppsAPI.
-		GetAppByName(client.AuthenticationContext(), appName).
+func appRegistered(apiEndpoint string, apiKey string, appName string) bool {
+	app, _, err := client.NewClient(apiEndpoint).AppsAPI.
+		GetAppByName(client.AuthenticationContext(apiKey), appName).
 		Execute()
 	if err != nil {
 		tools.LogError(fmt.Errorf("checking if app %v is registered: %w", appName, err))
@@ -169,9 +169,9 @@ func appRegistered(appName string) bool {
 }
 
 // registerApp marks that the app is now initialized and installed.
-func registerApp(appName string) error {
-	_, err := client.NewClient().AppsAPI.
-		PatchAppByName(client.AuthenticationContext(), appName).
+func registerApp(apiEndpoint string, apiKey string, appName string) error {
+	_, err := client.NewClient(apiEndpoint).AppsAPI.
+		PatchAppByName(client.AuthenticationContext(apiKey), appName).
 		Registered(true).
 		Execute()
 	if err != nil {
@@ -184,8 +184,8 @@ func registerApp(appName string) error {
 // This function guarantees that everything will only run once when the patch is applied.
 // Furthermore, this function guarantees that either all database changes or no changes are committed using
 // transactions. For this you must use the connection that is passed to the function parameter.
-func Patch(connection db.Connection, appAndSchemaName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
-	if patchApplied(appAndSchemaName, patchName) {
+func Patch(apiEndpoint string, apiKey string, connection db.Connection, appAndSchemaName string, patchName string, patchFunctions ...func(connection db.Connection) error) {
+	if patchApplied(apiEndpoint, apiKey, appAndSchemaName, patchName) {
 		log.Info("Apps", "Skip patching because app %s is already patched for %s", appAndSchemaName, patchName)
 		return
 	} else {
@@ -214,7 +214,7 @@ func Patch(connection db.Connection, appAndSchemaName string, patchName string, 
 		log.Warn("Apps", "Cannot fix privileges for schema %s: %v", appAndSchemaName, err)
 	}
 
-	err = applyPatch(appAndSchemaName, patchName)
+	err = applyPatch(apiEndpoint, apiKey, appAndSchemaName, patchName)
 	if err != nil {
 		log.Fatal("Apps", "Cannot register patch %s for app %s: %v", patchName, appAndSchemaName, err)
 	}
@@ -223,9 +223,9 @@ func Patch(connection db.Connection, appAndSchemaName string, patchName string, 
 }
 
 // patchApplied checks if the patch is already applied.
-func patchApplied(appName string, patchName string) bool {
-	patch, _, err := client.NewClient().AppsAPI.
-		GetPatchByName(client.AuthenticationContext(), appName, patchName).
+func patchApplied(apiEndpoint string, apiKey string, appName string, patchName string) bool {
+	patch, _, err := client.NewClient(apiEndpoint).AppsAPI.
+		GetPatchByName(client.AuthenticationContext(apiKey), appName, patchName).
 		Execute()
 	if err != nil || !patch.Applied.IsSet() {
 		return false
@@ -234,9 +234,9 @@ func patchApplied(appName string, patchName string) bool {
 }
 
 // applyPatch marks that the patch is now applied.
-func applyPatch(appName string, patchName string) error {
-	_, err := client.NewClient().AppsAPI.
-		PatchPatchByName(client.AuthenticationContext(), appName, patchName).
+func applyPatch(apiEndpoint string, apiKey string, appName string, patchName string) error {
+	_, err := client.NewClient(apiEndpoint).AppsAPI.
+		PatchPatchByName(client.AuthenticationContext(apiKey), appName, patchName).
 		Apply(true).
 		Execute()
 	if err != nil {

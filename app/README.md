@@ -5,17 +5,17 @@ The go-eliona App package provides handy methods to handle app in an eliona envi
 To use the apps package you must import the package.
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/app"
+import "github.com/eliona-smart-building-assistant/go-eliona/v2/app"
 ```
 
-The package needs an Api server address. To configure this have a look at [api](../api) package.
+The package needs an Api server address. To configure this have assetLike look at [api](../api) package.
 
 ## Usage
 
 After installation, you can initialize and patch apps in an eliona environment. 
 
 ```go
-import "github.com/eliona-smart-building-assistant/go-eliona/app"
+import "github.com/eliona-smart-building-assistant/go-eliona/v2/app"
 ```
 
 ### Initialize your app

@@ -18,55 +18,56 @@ package asset
 import (
 	"fmt"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
-type AssetWithParentReferences interface {
+type AssetLikeWithParentReferences interface {
 	GetName() string
 	GetDescription() string
 	GetAssetType() string
 	GetGAI() string
 	GetLocationalParentGAI() string
 	GetFunctionalParentGAI() string
+	GetSiteID() string
 
-	SetAssetID(assetID int32, projectID string) error
+	SetAssetID(assetID int32) error
 }
 
 // CreateAssetsBulk creates assets within the asset structure provided.
 // It ensures that parent assets are created before their children by sorting the assets accordingly.
-func CreateAssetsBulk(assets []AssetWithParentReferences, projectId string) (createdCnt int, err error) {
-	return createAssets(assets, projectId)
+func CreateAssetsBulk(apiEndpoint string, apiKey string, assetLikes []AssetLikeWithParentReferences) (createdCnt int, err error) {
+	return createAssets(apiEndpoint, apiKey, assetLikes)
 }
 
-func createAssets(assets []AssetWithParentReferences, projectId string) (createdCnt int, err error) {
-	sortedAssets, err := sortAssetsByDependencies(assets)
+func createAssets(apiEndpoint string, apiKey string, assetLikes []AssetLikeWithParentReferences) (createdCnt int, err error) {
+	sortedAssetLikes, err := sortAssetLikesByDependencies(assetLikes)
 	if err != nil {
-		return 0, fmt.Errorf("sorting assets: %v", err)
+		return 0, fmt.Errorf("sorting assetLikes: %v", err)
 	}
 
 	var apiAssets []api.Asset
-	for _, a := range sortedAssets {
-		apiAssets = append(apiAssets, assetToAPIAsset(a, projectId))
+	for _, assetLike := range sortedAssetLikes {
+		apiAssets = append(apiAssets, assetLikeToApiAsset(assetLike))
 	}
-	result, err := UpsertAssetsBulkGAI(apiAssets)
+	result, err := UpsertAssetsBulkGAI(apiEndpoint, apiKey, apiAssets)
 	if err != nil {
-		return 0, fmt.Errorf("upserting bulk assets: %v", err)
+		return 0, fmt.Errorf("upserting bulk assetLikes: %v", err)
 	}
 
 	resultsMap := make(map[string]api.Asset)
 	for _, a := range result {
 		resultsMap[a.GlobalAssetIdentifier] = a
 	}
-	for _, a := range sortedAssets {
-		updatedAPIAsset, ok := resultsMap[a.GetGAI()]
+	for _, assetLike := range sortedAssetLikes {
+		updatedApiAsset, ok := resultsMap[assetLike.GetGAI()]
 		if !ok {
-			return 0, fmt.Errorf("should not happen: did not find GAI '%v' in updated api assets", a.GetGAI())
+			return 0, fmt.Errorf("should not happen: did not find GAI '%v' in updated api assetLike", assetLike.GetGAI())
 		}
-		if !updatedAPIAsset.Id.IsSet() || *updatedAPIAsset.Id.Get() == 0 {
-			return 0, fmt.Errorf("GAI '%v' has zero value AssetID in response from APIv2", a.GetGAI())
+		if !updatedApiAsset.Id.IsSet() || *updatedApiAsset.Id.Get() == 0 {
+			return 0, fmt.Errorf("GAI '%v' has zero value AssetID in response from APIv2", assetLike.GetGAI())
 		}
-		if err := a.SetAssetID(updatedAPIAsset.GetId(), projectId); err != nil {
+		if err := assetLike.SetAssetID(updatedApiAsset.GetId()); err != nil {
 			return 0, fmt.Errorf("setting asset ID: %v", err)
 		}
 	}
@@ -74,22 +75,22 @@ func createAssets(assets []AssetWithParentReferences, projectId string) (created
 	return len(result), nil
 }
 
-// sortAssetsByDependencies sorts the assets to ensure that parent assets are created before their children.
+// sortAssetLikesByDependencies sorts the assets to ensure that parent assets are created before their children.
 // It performs a topological sort based on the parent GAIs.
-func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithParentReferences, error) {
-	assetMap := make(map[string]AssetWithParentReferences)
-	for _, asset := range assets {
-		assetMap[asset.GetGAI()] = asset
+func sortAssetLikesByDependencies(assetLikes []AssetLikeWithParentReferences) ([]AssetLikeWithParentReferences, error) {
+	assetLikeMap := make(map[string]AssetLikeWithParentReferences)
+	for _, assetLike := range assetLikes {
+		assetLikeMap[assetLike.GetGAI()] = assetLike
 	}
 
-	var sortedAssets []AssetWithParentReferences
+	var sortedAssetLikes []AssetLikeWithParentReferences
 	visited := make(map[string]bool)
 	tempMark := make(map[string]bool)
 
 	var visit func(string) error
 	visit = func(gai string) error {
 		if tempMark[gai] {
-			return fmt.Errorf("circular dependency detected at asset with GAI '%s'", gai)
+			return fmt.Errorf("circular dependency detected at assetLike with GAI '%s'", gai)
 		}
 		if visited[gai] {
 			return nil
@@ -98,14 +99,14 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 		tempMark[gai] = true
 		defer func() { tempMark[gai] = false }()
 
-		asset, exists := assetMap[gai]
+		asset, exists := assetLikeMap[gai]
 		if !exists {
-			return fmt.Errorf("asset with GAI '%s' not found", gai)
+			return fmt.Errorf("assetLike with GAI '%s' not found", gai)
 		}
 
 		locParentGAI := asset.GetLocationalParentGAI()
 		if locParentGAI != "" {
-			if _, parentExists := assetMap[locParentGAI]; parentExists {
+			if _, parentExists := assetLikeMap[locParentGAI]; parentExists {
 				if err := visit(locParentGAI); err != nil {
 					return err
 				}
@@ -114,7 +115,7 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 
 		funcParentGAI := asset.GetFunctionalParentGAI()
 		if funcParentGAI != "" {
-			if _, parentExists := assetMap[funcParentGAI]; parentExists {
+			if _, parentExists := assetLikeMap[funcParentGAI]; parentExists {
 				if err := visit(funcParentGAI); err != nil {
 					return err
 				}
@@ -122,11 +123,11 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 		}
 
 		visited[gai] = true
-		sortedAssets = append(sortedAssets, asset)
+		sortedAssetLikes = append(sortedAssetLikes, asset)
 		return nil
 	}
 
-	for gai := range assetMap {
+	for gai := range assetLikeMap {
 		if !visited[gai] {
 			if err := visit(gai); err != nil {
 				return nil, err
@@ -134,17 +135,17 @@ func sortAssetsByDependencies(assets []AssetWithParentReferences) ([]AssetWithPa
 		}
 	}
 
-	return sortedAssets, nil
+	return sortedAssetLikes, nil
 }
 
-func assetToAPIAsset(ast AssetWithParentReferences, projectId string) api.Asset {
+func assetLikeToApiAsset(assetLike AssetLikeWithParentReferences) api.Asset {
 	return api.Asset{
-		ProjectId:                  projectId,
-		GlobalAssetIdentifier:      ast.GetGAI(),
-		Name:                       *api.NewNullableString(common.Ptr(ast.GetName())),
-		AssetType:                  ast.GetAssetType(),
-		Description:                *api.NewNullableString(common.Ptr(ast.GetDescription())),
-		ParentFunctionalIdentifier: *api.NewNullableString(common.Ptr(ast.GetFunctionalParentGAI())),
-		ParentLocationalIdentifier: *api.NewNullableString(common.Ptr(ast.GetLocationalParentGAI())),
+		SiteId:                     *api.NewNullableString(common.Ptr(assetLike.GetSiteID())),
+		GlobalAssetIdentifier:      assetLike.GetGAI(),
+		Name:                       *api.NewNullableString(common.Ptr(assetLike.GetName())),
+		AssetType:                  assetLike.GetAssetType(),
+		Description:                *api.NewNullableString(common.Ptr(assetLike.GetDescription())),
+		ParentFunctionalIdentifier: *api.NewNullableString(common.Ptr(assetLike.GetFunctionalParentGAI())),
+		ParentLocationalIdentifier: *api.NewNullableString(common.Ptr(assetLike.GetLocationalParentGAI())),
 	}
 }

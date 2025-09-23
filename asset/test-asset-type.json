@@ -3,14 +3,6 @@
 		{
 			"enable": true,
 			"name": "openings",
-			"pipeline": {
-				"mode": "avg",
-				"raster": [
-					"M15",
-					"H1",
-					"DAY"
-				]
-			},
 			"precision": 0,
 			"subtype": "input",
 			"translation": {
@@ -22,14 +14,6 @@
 		{
 			"enable": true,
 			"name": "bat_level",
-			"pipeline": {
-				"mode": "avg",
-				"raster": [
-					"M15",
-					"H1",
-					"DAY"
-				]
-			},
 			"subtype": "input",
 			"translation": {
 				"de": "Batteriestand",
@@ -62,14 +46,6 @@
 		{
 			"enable": true,
 			"name": "totalopenings",
-			"pipeline": {
-				"mode": "avg",
-				"raster": [
-					"M15",
-					"H1",
-					"DAY"
-				]
-			},
 			"subtype": "input",
 			"translation": {
 				"de": "Total Öffnungen",
@@ -80,14 +56,6 @@
 		{
 			"enable": true,
 			"name": "volumepercent",
-			"pipeline": {
-				"mode": "avg",
-				"raster": [
-					"M15",
-					"H1",
-					"DAY"
-				]
-			},
 			"subtype": "input",
 			"translation": {
 				"de": "Füllstand",

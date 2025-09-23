@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"testing"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 	"github.com/stretchr/testify/assert"
 )
@@ -31,23 +31,21 @@ func TestUnMarshal(t *testing.T) {
 }
 
 func TestUpsertAssetDoesNotPanic(t *testing.T) {
-	// Asset cannot be empty.
-	assetID, err := UpsertAsset(api.Asset{})
+	// AssetLike cannot be empty.
+	assetID, err := UpsertAsset("https://apps.k8s.eliona.io/api/v2", "A#w&c04nyGkR$REal#W*Km%Zrgx!U@1C", api.Asset{})
 	assert.NotNil(t, err)
 	assert.Nil(t, assetID)
 }
 
 func TestErrorLogging(t *testing.T) {
-	t.Setenv("API_ENDPOINT", "https://apps.k8s.eliona.io/api/v2")
-	t.Setenv("API_TOKEN", "A#w&c04nyGkR$REal#W*Km%Zrgx!U@1C")
 	a := api.Asset{
-		ProjectId:             "99",
+		SiteId:                *api.NewNullableString(common.Ptr("eb7f1610-782b-453b-84a6-839135aa2625")),
 		GlobalAssetIdentifier: "fsdjkjbkfdsbhjkdsfajkhlb",
 		Name:                  *api.NewNullableString(common.Ptr("testapicha")),
 		AssetType:             "nonexistent",
 		Description:           *api.NewNullableString(common.Ptr("d.description")),
 	}
-	if _, err := UpsertAsset(a); err != nil {
+	if _, err := UpsertAsset("https://apps.k8s.eliona.io/api/v2", "A#w&c04nyGkR$REal#W*Km%Zrgx!U@1C", a); err != nil {
 		fmt.Printf("upserting asset %+v into Eliona: %v", a, err)
 	}
 }

@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"strings"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
 )
 
 type ElionaTag struct {

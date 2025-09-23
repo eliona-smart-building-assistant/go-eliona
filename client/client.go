@@ -18,7 +18,7 @@ package client
 import (
 	"context"
 
-	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v2"
+	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
 )
 
@@ -26,30 +26,23 @@ func ApiEndpointString() string {
 	return common.Getenv("API_ENDPOINT", "http://api-v2:3000/v2")
 }
 
-func NewClient() *api.APIClient {
+func ApiKeyString() string {
+	return common.Getenv("API_TOKEN", "not defined")
+}
+
+func NewClient(apiEndpoint string) *api.APIClient {
 	cfg := api.NewConfiguration()
-	cfg.Servers = api.ServerConfigurations{{URL: ApiEndpointString()}}
+	cfg.Servers = api.ServerConfigurations{{URL: apiEndpoint}}
 	return api.NewAPIClient(cfg)
 }
 
-func AuthenticationContextApiKey(apiKey string) context.Context {
-	return AuthenticationContextApiKeyWrap(context.Background(), apiKey)
+func AuthenticationContext(apiKey string) context.Context {
+	return AuthenticationContextWrap(context.Background(), apiKey)
 }
 
-func AuthenticationContext() context.Context {
-	return AuthenticationContextWrap(context.Background())
-}
-
-func AuthenticationContextApiKeyWrap(ctx context.Context, apiKey string) context.Context {
+func AuthenticationContextWrap(ctx context.Context, apiKey string) context.Context {
 	apiKeys := map[string]api.APIKey{
 		"ApiKeyAuth": {Key: apiKey},
-	}
-	return context.WithValue(ctx, api.ContextAPIKeys, apiKeys)
-}
-
-func AuthenticationContextWrap(ctx context.Context) context.Context {
-	apiKeys := map[string]api.APIKey{
-		"ApiKeyAuth": {Key: common.Getenv("API_TOKEN", "not defined")},
 	}
 	return context.WithValue(ctx, api.ContextAPIKeys, apiKeys)
 }
