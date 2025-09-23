@@ -76,7 +76,27 @@ func StructToMap(input any) (map[string]string, error) {
 		}
 
 		fieldValue := inputValue.Field(i)
-		output[fieldTag.ParamName] = fieldValue.String()
+
+		var strValue string
+		switch fieldValue.Kind() {
+		case reflect.String:
+			strValue = fieldValue.String()
+		case reflect.Slice:
+			// Special handling for []string
+			if fieldValue.Type().Elem().Kind() == reflect.String {
+				var parts []string
+				for j := 0; j < fieldValue.Len(); j++ {
+					parts = append(parts, fieldValue.Index(j).String())
+				}
+				strValue = "[" + strings.Join(parts, ", ") + "]"
+			} else {
+				strValue = fmt.Sprintf("%v", fieldValue.Interface())
+			}
+		default:
+			strValue = fmt.Sprintf("%v", fieldValue.Interface())
+		}
+
+		output[fieldTag.ParamName] = strValue
 	}
 
 	return output, nil
