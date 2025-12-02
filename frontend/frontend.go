@@ -74,6 +74,7 @@ type Environment struct {
 	ProjId       string `json:"proj_id"`
 	RoleId       string `json:"role_id"`
 	UserId       string `json:"user_id"`
+	TenantId     string `json:"tenant_id"`
 	Entitlements string `json:"entitlements"`
 	jwt.RegisteredClaims
 }
