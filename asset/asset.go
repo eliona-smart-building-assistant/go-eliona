@@ -48,6 +48,9 @@ func getAsset(apiEndpoint string, apiKey string, assetId int32) (*api.Asset, err
 	asset, res, err := client.NewClient(apiEndpoint).AssetsAPI.
 		GetAssetById(client.AuthenticationContext(apiKey), assetId).
 		Execute()
+	if err != nil {
+		tools.LogError(fmt.Errorf("getting asset %v: %w", assetId, err))
+	}
 	if res.StatusCode == http.StatusNotFound {
 		return nil, ErrNotFound
 	}
