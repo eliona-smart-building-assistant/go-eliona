@@ -17,8 +17,10 @@ package app
 
 import (
 	"context"
+	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/google/uuid"
 	"io"
 	"os"
 	"strings"
@@ -243,4 +245,44 @@ func applyPatch(apiEndpoint string, apiKey string, appName string, patchName str
 		tools.LogError(fmt.Errorf("applying patch %v to app %v: %w", patchName, appName, err))
 	}
 	return err
+}
+
+// GetApiKey returns the API key for the given appName and tenantId.
+// TODO: Deprecated - Replace with a secure APIv2 call instead of connecting the database directly
+// Deprecated
+func GetApiKey(appName string, database *sql.DB, tenantId uuid.UUID) (string, error) {
+	const query = `
+SELECT kc.key
+FROM keyauth_credentials kc
+JOIN eliona_app ea
+  ON ea.key_id = kc.key_id
+ AND ea.tenant_id = kc.tenant_id
+WHERE ea.app_name = $1
+  AND ea.tenant_id = $2
+`
+
+	rows, err := database.Query(query, appName, tenantId)
+	if err != nil {
+		return "", fmt.Errorf("query API keys: %w", err)
+	}
+	defer rows.Close()
+
+	var results []string
+	for rows.Next() {
+		var key string
+		if err := rows.Scan(&key); err != nil {
+			return "", fmt.Errorf("scan API key: %w", err)
+		}
+		results = append(results, key)
+	}
+
+	if err := rows.Err(); err != nil {
+		return "", fmt.Errorf("iterate rows: %w", err)
+	}
+
+	if len(results) == 0 {
+		return "", fmt.Errorf("no API key found for app %q and tenant %s", appName, tenantId)
+	}
+
+	return results[0], nil
 }

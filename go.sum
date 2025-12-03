@@ -8,8 +8,8 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.1 h1:8vmPsfScaIzW6stflp2SlyKH3FNlMK3etGA3nOt94Gg=
-github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.1/go.mod h1:cuQPKOz8FtkCmgvrT2dgyO6cdzSU8cavM0XjFPTTU6Q=
+github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.2 h1:iZmTMHvP8FnwqoV/yqGgGfCc6LjV5YhXTLemqxgr5sc=
+github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.2/go.mod h1:cuQPKOz8FtkCmgvrT2dgyO6cdzSU8cavM0XjFPTTU6Q=
 github.com/eliona-smart-building-assistant/go-utils v1.1.10 h1:wCzsbsDK+ynNA34JtxFo7z4M6rZOdUb+Z0o6Zpn+l5s=
 github.com/eliona-smart-building-assistant/go-utils v1.1.10/go.mod h1:fPXlXum9X8EO9Bl5pcTQEpXrD0RZZL8AijwfW/Y5twU=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
@@ -27,6 +27,8 @@ github.com/golang-jwt/jwt/v5 v5.3.0/go.mod h1:fxCRLWMO43lRc8nhHWY6LGqRcf+1gQWArs
 github.com/google/go-cmp v0.6.0 h1:ofyhxvXcZhMsU5ulbFiLKl/XBFqE1GSq7atu8tAmTRI=
 github.com/google/go-cmp v0.6.0/go.mod h1:17dUlkBOakJ0+DkrSSNjCkIjxS6bF9zb3elmeNGIjoY=
 github.com/google/renameio v0.1.0/go.mod h1:KWCgfxg9yswjAJkECMjeO8J8rahYeXnNhOm40UhjYkI=
+github.com/google/uuid v1.6.0 h1:NIvaJDMOsjHA8n1jAhLSgzrAzy1Hgr+hNrb57e+94F0=
+github.com/google/uuid v1.6.0/go.mod h1:TIyPZe4MgqvfeYDBFedMoGGpEw/LqOeaOT+nhxU+yHo=
 github.com/jackc/chunkreader v1.0.0/go.mod h1:RT6O25fNZIuasFJRyZ4R/Y2BbhasbmZXF9QQ7T3kePo=
 github.com/jackc/chunkreader/v2 v2.0.0/go.mod h1:odVSm741yZoC3dpHEUXIqA9tQRhFrgOHwnPIn9lDKlk=
 github.com/jackc/chunkreader/v2 v2.0.1 h1:i+RDz65UE+mmpjTfyz0MoVTnzeYxroil2G82ki7MGG8=
