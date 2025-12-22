@@ -8,8 +8,8 @@ github.com/creack/pty v1.1.7/go.mod h1:lj5s0c3V2DBrqTV7llrYr5NG6My20zk30Fl46Y7Do
 github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.1 h1:vj9j/u1bqnvCEfJOwUhtlOARqs3+rkHYY13jYWTU97c=
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.2 h1:iZmTMHvP8FnwqoV/yqGgGfCc6LjV5YhXTLemqxgr5sc=
-github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.2/go.mod h1:cuQPKOz8FtkCmgvrT2dgyO6cdzSU8cavM0XjFPTTU6Q=
+github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.6 h1:MmDHUkLDDKRi2++Lk62c6rNHlFrT8816Yj5DSJhvR4A=
+github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.6/go.mod h1:cuQPKOz8FtkCmgvrT2dgyO6cdzSU8cavM0XjFPTTU6Q=
 github.com/eliona-smart-building-assistant/go-utils v1.1.10 h1:wCzsbsDK+ynNA34JtxFo7z4M6rZOdUb+Z0o6Zpn+l5s=
 github.com/eliona-smart-building-assistant/go-utils v1.1.10/go.mod h1:fPXlXum9X8EO9Bl5pcTQEpXrD0RZZL8AijwfW/Y5twU=
 github.com/frankban/quicktest v1.14.6 h1:7Xjx+VpznH+oBnejlPUj8oUpdxnVs4f8XU8WnHkI4W8=
