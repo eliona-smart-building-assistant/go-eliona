@@ -114,10 +114,8 @@ func UpsertAssetTypeAttribute(apiEndpoint string, apiKey string, attribute api.A
 }
 
 // InitAssetType inserts or updates the given asset type.
-func InitAssetType(apiEndpoint string, apiKey string, assetType api.AssetType) func(db.Connection) error {
-	return func(db.Connection) error {
-		return UpsertAssetType(apiEndpoint, apiKey, assetType)
-	}
+func InitAssetType(apiEndpoint string, apiKey string, assetType api.AssetType) error {
+	return UpsertAssetType(apiEndpoint, apiKey, assetType)
 }
 
 func initAssetTypeFile(apiEndpoint string, apiKey string, path string) error {
@@ -135,20 +133,18 @@ func InitAssetTypeFile(apiEndpoint string, apiKey string, path string) func(db.C
 	}
 }
 
-func InitAssetTypeFiles(apiEndpoint string, apiKey string, pattern string) func(db.Connection) error {
-	return func(db.Connection) error {
-		paths, err := filepath.Glob(pattern)
-		if err != nil {
-			return fmt.Errorf("glob file pattern %s: %v", pattern, err)
-		}
-		for _, path := range paths {
-			err := initAssetTypeFile(apiEndpoint, apiKey, path)
-			if err != nil {
-				return fmt.Errorf("initializing asset type %s: %v", path, err)
-			}
-		}
-		return nil
+func InitAssetTypeFiles(apiEndpoint string, apiKey string, pattern string) error {
+	paths, err := filepath.Glob(pattern)
+	if err != nil {
+		return fmt.Errorf("glob file pattern %s: %v", pattern, err)
 	}
+	for _, path := range paths {
+		err := initAssetTypeFile(apiEndpoint, apiKey, path)
+		if err != nil {
+			return fmt.Errorf("initializing asset type %s: %v", path, err)
+		}
+	}
+	return nil
 }
 
 type SubType string
