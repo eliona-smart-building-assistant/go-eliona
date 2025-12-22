@@ -1,6 +1,8 @@
 module github.com/eliona-smart-building-assistant/go-eliona/v2
 
-go 1.24
+go 1.24.0
+
+toolchain go1.24.5
 
 require (
 	github.com/eliona-smart-building-assistant/go-eliona-api-client/v3 v3.0.6
@@ -28,8 +30,8 @@ require (
 	github.com/volatiletech/inflect v0.0.1 // indirect
 	github.com/volatiletech/sqlboiler/v4 v4.19.1 // indirect
 	github.com/volatiletech/strmangle v0.0.8 // indirect
-	golang.org/x/crypto v0.38.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/crypto v0.45.0 // indirect
+	golang.org/x/text v0.31.0 // indirect
 	golang.org/x/xerrors v0.0.0-20240903120638-7835f813f4da // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
