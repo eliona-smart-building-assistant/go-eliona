@@ -26,7 +26,6 @@ import (
 	api "github.com/eliona-smart-building-assistant/go-eliona-api-client/v3"
 	"github.com/eliona-smart-building-assistant/go-eliona/v2/client"
 	"github.com/eliona-smart-building-assistant/go-utils/common"
-	"github.com/eliona-smart-building-assistant/go-utils/db"
 )
 
 var ErrNotFound = errors.New("not found")
@@ -118,19 +117,12 @@ func InitAssetType(apiEndpoint string, apiKey string, assetType api.AssetType) e
 	return UpsertAssetType(apiEndpoint, apiKey, assetType)
 }
 
-func initAssetTypeFile(apiEndpoint string, apiKey string, path string) error {
+func InitAssetTypeFile(apiEndpoint string, apiKey string, path string) error {
 	assetType, err := common.UnmarshalFile[api.AssetType](path)
 	if err != nil {
 		return fmt.Errorf("unmarshalling file %s: %v", path, err)
 	}
 	return UpsertAssetType(apiEndpoint, apiKey, assetType)
-}
-
-// InitAssetTypeFile inserts or updates the asset type build from the content of the given file.
-func InitAssetTypeFile(apiEndpoint string, apiKey string, path string) func(db.Connection) error {
-	return func(db.Connection) error {
-		return initAssetTypeFile(apiEndpoint, apiKey, path)
-	}
 }
 
 func InitAssetTypeFiles(apiEndpoint string, apiKey string, pattern string) error {
@@ -139,7 +131,7 @@ func InitAssetTypeFiles(apiEndpoint string, apiKey string, pattern string) error
 		return fmt.Errorf("glob file pattern %s: %v", pattern, err)
 	}
 	for _, path := range paths {
-		err := initAssetTypeFile(apiEndpoint, apiKey, path)
+		err := InitAssetTypeFile(apiEndpoint, apiKey, path)
 		if err != nil {
 			return fmt.Errorf("initializing asset type %s: %v", path, err)
 		}
