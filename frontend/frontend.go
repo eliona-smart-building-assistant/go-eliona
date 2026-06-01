@@ -66,7 +66,7 @@ func ParseEnvironment(r *http.Request) (*Environment, error) {
 }
 
 type Environment struct {
-	Aud          string `json:"aud"`
+	// Aud claims are inside of jwt.RegisteredClaims, so we don't need to add them here.
 	Exp          int    `json:"exp"`
 	Iss          string `json:"iss"`
 	Role         string `json:"role"`
